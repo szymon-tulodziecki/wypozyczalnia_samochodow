@@ -382,7 +382,8 @@ export default function Footer() {
         @media (max-width: 900px) {
           .md-footer-inner {
             grid-template-columns: 1fr 1fr;
-            gap: 2.5rem 2rem;
+            gap: 2rem 1.5rem;
+            padding: 2.5rem 1.5rem 1.5rem;
           }
           .md-footer-brand { grid-column: 1 / -1; }
         }
@@ -390,13 +391,17 @@ export default function Footer() {
         @media (max-width: 540px) {
           .md-footer-inner {
             grid-template-columns: 1fr;
-            padding: 3rem 1.25rem 2rem;
+            padding: 2rem 1.25rem 1.25rem;
+            gap: 1.5rem;
           }
+          .md-footer-tagline { display: none; }
           .md-footer-bottom {
             flex-direction: column;
             align-items: flex-start;
-            padding: 1rem 1.25rem;
+            padding: 0.85rem 1.25rem;
+            gap: 0.4rem;
           }
+          .md-footer-legal { gap: 1rem; }
         }
       `}</style>
 

@@ -68,6 +68,12 @@ export default function CTA() {
           gap: 1rem;
           flex-wrap: wrap;
         }
+
+        @media (max-width: 540px) {
+          .hp-cta { padding: 2.5rem 1.25rem; }
+          .hp-cta-actions { flex-direction: column; align-items: center; }
+          .hp-btn-primary, .hp-btn-secondary { width: 100%; justify-content: center; }
+        }
       `}</style>
 
       <section className="hp-cta">

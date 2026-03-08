@@ -241,93 +241,79 @@ export default function Hero() {
           margin-top: 2px;
         }
 
-        /* ── Right: car image ── */
-        .hp-hero-visual {
-          position: relative;
-          display: flex;
-          align-items: flex-end;
-          justify-content: flex-end;
-        }
-
-        .hp-hero-car-wrap {
-          position: relative;
-          width: 100%;
-          max-width: 720px;
-          transform: translateX(8%);
-          -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 88%, transparent 100%);
-          mask-image: linear-gradient(to right, transparent 0%, black 6%, black 88%, transparent 100%);
-        }
-
-        /* Blue glow under the car */
-        .hp-hero-car-glow {
+        /* ── Background car ── */
+        .hp-hero-bg-car {
           position: absolute;
-          bottom: 5%;
-          left: 10%; right: 10%;
-          height: 60%;
-          background: radial-gradient(ellipse, rgba(46,122,181,0.15) 0%, transparent 70%);
-          filter: blur(28px);
+          right: -28%;
+          bottom: 0;
+          width: 85%;
+          max-width: 1100px;
           pointer-events: none;
           z-index: 0;
+          -webkit-mask-image:
+            linear-gradient(to right, transparent 0%, black 20%, black 100%),
+            linear-gradient(to top, transparent 0%, black 15%);
+          mask-image:
+            linear-gradient(to right, transparent 0%, black 20%, black 100%),
+            linear-gradient(to top, transparent 0%, black 15%);
+          -webkit-mask-composite: intersect;
+          mask-composite: intersect;
         }
 
-        /* Slide-in from right on load */
         @keyframes carSlideIn {
-          from {
-            transform: perspective(900px) rotateY(-6deg) translateX(120px);
-            opacity: 0;
-          }
-          to {
-            transform: perspective(900px) rotateY(-4deg) translateX(0);
-            opacity: 1;
-          }
+          from { opacity: 0; transform: translateX(60px); }
+          to   { opacity: 1; transform: translateX(0); }
         }
 
-        .hp-hero-car-img {
-          position: relative;
-          z-index: 1;
+        .hp-hero-bg-car-img {
           width: 100%;
           height: auto;
-          filter:
-            drop-shadow(0 30px 50px rgba(0,0,0,0.85))
-            drop-shadow(0 8px 24px rgba(0,0,0,0.7))
-            drop-shadow(0 2px 8px rgba(46,122,181,0.15));
-          transform: perspective(900px) rotateY(-4deg);
-          animation: carSlideIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
-          image-rendering: -webkit-optimize-contrast;
+          opacity: 0.22;
+          transform: translateZ(0);
+          will-change: transform, opacity;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          animation: carSlideIn 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
         }
 
-        /* Decorative vertical line left of car */
-        .hp-hero-car-line {
+        /* Blue glow under the bg car */
+        .hp-hero-bg-car-glow {
           position: absolute;
-          left: -1.5rem;
-          top: 15%; bottom: 15%;
-          width: 1px;
-          background: linear-gradient(
-            180deg,
-            transparent,
-            rgba(46,122,181,0.4) 30%,
-            rgba(109,191,69,0.4) 70%,
-            transparent
-          );
+          bottom: 0; left: 5%; right: 5%;
+          height: 50%;
+          background: radial-gradient(ellipse, rgba(46,122,181,0.18) 0%, transparent 70%);
+          filter: blur(40px);
+          z-index: 0;
+          pointer-events: none;
+        }
+
+        /* single column — no visual column */
+        .hp-hero-inner {
+          position: relative;
+          z-index: 1;
+          max-width: 1280px;
+          margin: 0 auto;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
         }
 
         /* ── Responsive ── */
         @media (max-width: 900px) {
-          .hp-hero-inner {
-            grid-template-columns: 1fr;
-            text-align: center;
-          }
-          .hp-hero-eyebrow { justify-content: center; }
-          .hp-hero-sub     { margin-left: auto; margin-right: auto; }
-          .hp-hero-actions { justify-content: center; }
-          .hp-hero-stats   { justify-content: center; }
-          .hp-hero-visual  { justify-content: center; margin-top: 2rem; }
-          .hp-hero-car-line { display: none; }
+          .hp-hero-bg-car { display: none; }
+          .hp-hero-eyebrow { justify-content: flex-start; }
         }
 
         @media (max-width: 540px) {
-          .hp-hero { padding: 6rem 1.25rem 3rem; }
-          .hp-hero-stats { gap: 1.5rem; }
+          .hp-hero { padding: 5.5rem 1.25rem 2rem; min-height: auto; }
+          .hp-hero-title { font-size: clamp(2.4rem, 12vw, 3.2rem); }
+          .hp-hero-stats { gap: 1.2rem; flex-wrap: wrap; justify-content: center; }
+          .hp-hero-stat { flex: 0 1 calc(33% - 0.8rem); text-align: center; }
+          .hp-hero-stat-num { font-size: 1.5rem; }
+          .hp-hero-actions { flex-direction: column; align-items: flex-start; width: 100%; }
+          .hp-btn-primary, .hp-btn-secondary { width: 100%; justify-content: center; }
         }
       `}</style>
 
@@ -335,9 +321,23 @@ export default function Hero() {
         <div className="hp-hero-glow-blue" />
         <div className="hp-hero-glow-green" />
 
+        {/* Background car — positioned absolute behind text */}
+        <div className="hp-hero-bg-car">
+          <div className="hp-hero-bg-car-glow" />
+          <Image
+            src="/auto.jpg"
+            alt=""
+            width={900}
+            height={506}
+            className="hp-hero-bg-car-img"
+            priority
+            aria-hidden="true"
+          />
+        </div>
+
         <div className="hp-hero-inner">
 
-          {/* Left — text */}
+          {/* Text content */}
           <div className="hp-hero-content">
             <p className="hp-hero-eyebrow">Wypożyczalnia Samochodów</p>
             <h1 className="hp-hero-title">
@@ -367,22 +367,6 @@ export default function Hero() {
                 <div className="hp-hero-stat-num">5★</div>
                 <div className="hp-hero-stat-label">Ocena klientów</div>
               </div>
-            </div>
-          </div>
-
-          {/* Right — car */}
-          <div className="hp-hero-visual">
-            <div className="hp-hero-car-wrap">
-              <div className="hp-hero-car-glow" />
-              <div className="hp-hero-car-line" />
-              <Image
-                src="/car.png"
-                alt="Samochód premium do wynajęcia"
-                width={640}
-                height={360}
-                className="hp-hero-car-img"
-                priority
-              />
             </div>
           </div>
 

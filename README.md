@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wypożyczalnia Samochodów 🚗
+
+Nowoczesna, responsywna aplikacja webowa do wynajmu samochodów z zaawansowanym interfejsem użytkownika i płynną animacją.
+
+**Live Demo:** [https://wypozyczalniasamochodow.vercel.app/](https://wypozyczalniasamochodow.vercel.app/)
+
+## Technologia
+
+- **Framework:** [Next.js 15](https://nextjs.org) — React framework z App Router
+- **Język:** TypeScript — dla bezpieczeństwa typów
+- **Styling:** CSS-in-JS — animacje, gradient, efekty hover
+- **Hosting:** [Vercel](https://vercel.com) — zero-config deployment
+- **Czcionki:** Google Fonts (Bebas Neue, Barlow Condensed, Barlow)
+
+## Struktura Projektu
+
+```
+app/
+├── page.tsx                 # Strona główna (Home)
+├── layout.tsx               # Layout z Header i Footer
+├── globals.css              # Globalne style
+├── components/
+│   ├── Header.tsx           # Nawigacja
+│   ├── Footer.tsx           # Stopka
+│   └── main_page/
+│       ├── Hero.tsx         # Hero section z samochodem
+│       ├── Features.tsx     # Karta USP (Unique Selling Points)
+│       └── CTA.tsx          # Call-to-Action section
+└── public/
+    └── car.png              # Grafika samochodu
+```
+
+## Cechy
+
+✨ **Nowoczesny Design**
+- Ciemny motyw z gradiami niebiesko-zielonymi
+- Płynne animacje wejścia (fade-up, fade-right)
+- Responsywny układ (mobile, tablet, desktop)
+- Efekty hover na przyciski i karty
+
+🎨 **Komponenty**
+- **Header** — fixed navigation z responsywnym menu mobilne
+- **Hero** — fullscreen section z tekstem i obrazem samochodu (3D perspective)
+- **Features** — 3 karty z wartościami (szeroki wybór, przejrzyste ceny, szybka rezerwacja)
+- **CTA** — sekcja zachęcająca do rezerwacji
+- **Footer** — grid layout z linkami i social media
+
+📱 **Responsywność**
+- Mobile-first design
+- Breakpoints: 540px, 900px
+- Skalowalne tytuły clamp()
 
 ## Getting Started
 
-First, run the development server:
+### Wymagania
+
+- Node.js 18+
+- npm lub yarn
+
+### Instalacja
+
+```bash
+git clone <repo-url>
+cd wypozyczalnia_samochodow
+npm install
+```
+
+### Uruchamianie
+
+Serwer deweloperski:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Otwórz [http://localhost:3000](http://localhost:3000) w przeglądarce.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Wdrożenie
 
-To learn more about Next.js, take a look at the following resources:
+### Na Vercel (rekomendowane)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push kod na GitHub
+2. Połącz repozytorium z Vercel
+3. Wdrażanie następuje automatycznie przy każdym push do `main`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Aktualny deployment:** [https://wypozyczalniasamochodow.vercel.app/](https://wypozyczalniasamochodow.vercel.app/)
 
-## Deploy on Vercel
+## Animacje
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Fade Up** — tekst i komponenty wjeżdżają od dołu
+- **Fade Right** — nagłówki wslizgują się z lewej
+- **Car Slide In** — samochód wjeżdża z perspektywą 3D
+- **Hover Effects** — przyciski i karty reagują na najechanie
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Color Palette
+
+```
+--blue:        #2e7ab5
+--blue-light:  #4fa3d4
+--green:       #6dbf45
+--green-dark:  #4e9930
+--bg-dark:     #08090b
+--surface:     rgba(14, 18, 24, 0.92)
+```
+
+## Dokumentacja
+
+- [Next.js Docs](https://nextjs.org/docs)
+- [Vercel Deployment](https://vercel.com/docs)
+- [TypeScript](https://www.typescriptlang.org/docs/)

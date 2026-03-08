@@ -116,6 +116,13 @@ export default function Features() {
           line-height: 1.75;
           color: var(--text-muted);
         }
+
+        @media (max-width: 600px) {
+          .hp-features { padding: 2.5rem 1.25rem; }
+          .hp-cards { grid-template-columns: 1fr; gap: 1px; }
+          .hp-card { padding: 1.4rem 1.25rem; }
+          .hp-section-label { font-size: 0.6rem; }
+        }
       `}</style>
 
       <section className="hp-features">

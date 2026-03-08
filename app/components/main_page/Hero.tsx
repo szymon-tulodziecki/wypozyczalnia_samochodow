@@ -302,18 +302,18 @@ export default function Hero() {
 
         /* ── Responsive ── */
         @media (max-width: 900px) {
-          .hp-hero-bg-car { width: 95%; right: -12%; }
+          .hp-hero-bg-car { display: none; }
           .hp-hero-eyebrow { justify-content: flex-start; }
         }
 
         @media (max-width: 540px) {
           .hp-hero { padding: 5.5rem 1.25rem 2rem; min-height: auto; }
           .hp-hero-title { font-size: clamp(2.4rem, 12vw, 3.2rem); }
-          .hp-hero-stats { gap: 1.2rem; flex-wrap: wrap; }
+          .hp-hero-stats { gap: 1.2rem; flex-wrap: wrap; justify-content: center; }
+          .hp-hero-stat { flex: 0 1 calc(33% - 0.8rem); text-align: center; }
           .hp-hero-stat-num { font-size: 1.5rem; }
           .hp-hero-actions { flex-direction: column; align-items: flex-start; width: 100%; }
           .hp-btn-primary, .hp-btn-secondary { width: 100%; justify-content: center; }
-          .hp-hero-bg-car { width: 120%; right: -20%; }
         }
       `}</style>
 

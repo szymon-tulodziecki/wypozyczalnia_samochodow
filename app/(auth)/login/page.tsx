@@ -9,7 +9,6 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: implement login logic
     console.log('Login:', { email, password });
   };
 
@@ -30,11 +29,11 @@ export default function LoginPage() {
 
         .auth-page {
           position: relative;
-          min-height: 100vh;
+          height: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 7rem 2rem 4rem;
+          padding: 5rem 2rem 1.5rem;
           background: #08090b;
           overflow: hidden;
         }
@@ -94,44 +93,44 @@ export default function LoginPage() {
         }
 
         .auth-card-body {
-          padding: 2.5rem 2.2rem;
+          padding: 1.6rem 2rem 1.8rem;
         }
 
         .auth-title {
           font-family: 'Bebas Neue', sans-serif;
-          font-size: 2.2rem;
+          font-size: 1.9rem;
           letter-spacing: 0.18em;
           background: linear-gradient(100deg, var(--blue-light) 0%, #c8dde8 45%, var(--green) 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          margin: 0 0 0.4rem;
+          margin: 0 0 0.2rem;
         }
 
         .auth-subtitle {
           font-family: 'Barlow Condensed', sans-serif;
           font-weight: 300;
           font-style: italic;
-          font-size: 0.72rem;
+          font-size: 0.7rem;
           letter-spacing: 0.3em;
           text-transform: uppercase;
           color: var(--text-muted);
-          margin: 0 0 2rem;
+          margin: 0 0 1rem;
         }
 
         .auth-field {
-          margin-bottom: 1.4rem;
+          margin-bottom: 0.8rem;
         }
 
         .auth-label {
           display: block;
           font-family: 'Barlow Condensed', sans-serif;
           font-weight: 600;
-          font-size: 0.68rem;
+          font-size: 0.65rem;
           letter-spacing: 0.22em;
           text-transform: uppercase;
           color: var(--text-dim);
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.28rem;
         }
 
         .auth-input-wrapper {
@@ -140,7 +139,7 @@ export default function LoginPage() {
 
         .auth-input {
           width: 100%;
-          padding: 0.7rem 1rem;
+          padding: 0.45rem 1rem;
           font-family: 'Barlow', sans-serif;
           font-size: 0.88rem;
           font-weight: 300;
@@ -184,7 +183,7 @@ export default function LoginPage() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 1.8rem;
+          margin-bottom: 1rem;
         }
 
         .auth-remember {
@@ -227,7 +226,7 @@ export default function LoginPage() {
           justify-content: center;
           gap: 0.6rem;
           width: 100%;
-          padding: 0.7rem 1.6rem;
+          padding: 0.55rem 1.6rem;
           font-family: 'Barlow Condensed', sans-serif;
           font-weight: 600;
           font-size: 0.78rem;
@@ -251,7 +250,7 @@ export default function LoginPage() {
           display: flex;
           align-items: center;
           gap: 1rem;
-          margin: 1.8rem 0;
+          margin: 1rem 0;
         }
 
         .auth-divider::before,

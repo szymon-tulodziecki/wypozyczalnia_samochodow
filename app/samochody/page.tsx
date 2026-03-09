@@ -1,23 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-
-const CATEGORIES = ["Wszystkie", "Sedan", "SUV", "Van", "Premium"] as const;
-type Category = (typeof CATEGORIES)[number];
-
-const cars = [
-  { id: 1, name: "Audi A6",        category: "Sedan",   price: 420, img: "/auto.jpg" },
-  { id: 2, name: "BMW 5 Series",   category: "Sedan",   price: 480, img: "/auto.jpg" },
-  { id: 3, name: "Mercedes GLE",   category: "SUV",     price: 560, img: "/auto.jpg" },
-  { id: 4, name: "Volkswagen Touareg", category: "SUV", price: 490, img: "/auto.jpg" },
-  { id: 5, name: "Mercedes V-Class", category: "Van",   price: 520, img: "/auto.jpg" },
-  { id: 6, name: "Ford Tourneo",   category: "Van",     price: 360, img: "/auto.jpg" },
-  { id: 7, name: "Porsche Panamera", category: "Premium", price: 980, img: "/auto.jpg" },
-  { id: 8, name: "Bentley Flying Spur", category: "Premium", price: 1400, img: "/auto.jpg" },
-];
-
-const MAX_PRICE = 1500;
+import FleetFilters from "../components/fleet/FleetFilters";
+import CarCard from "../components/fleet/CarCard";
+import { cars, MAX_PRICE, type Category } from "../components/fleet/types";
 
 export default function Samochody() {
   const [activeCategory, setActiveCategory] = useState<Category>("Wszystkie");
@@ -42,57 +28,22 @@ export default function Samochody() {
         }
 
         .fl-page {
+          position: relative;
           min-height: 100vh;
           background: linear-gradient(135deg, #08090b 0%, #0d1117 60%, #08090f 100%);
           padding: 110px 2rem 5rem;
           font-family: 'Barlow', sans-serif;
         }
 
-        /* ── Page header ── */
-        .fl-header {
-          max-width: 1280px;
-          margin: 0 auto 3rem;
-        }
-
-        .fl-header-eyebrow {
-          font-family: 'Barlow Condensed', sans-serif;
-          font-weight: 600;
-          font-size: 0.65rem;
-          letter-spacing: 0.35em;
-          text-transform: uppercase;
-          color: var(--green);
-          display: flex;
-          align-items: center;
-          gap: 0.8rem;
-          margin-bottom: 0.8rem;
-        }
-
-        .fl-header-eyebrow::before {
+        .fl-page::before {
           content: '';
-          display: inline-block;
-          width: 36px; height: 1px;
-          background: linear-gradient(90deg, var(--blue), var(--green));
-        }
-
-        .fl-header h1 {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(2.8rem, 6vw, 4.8rem);
-          letter-spacing: 0.06em;
-          line-height: 0.95;
-          background: linear-gradient(110deg, #fff 0%, #c8dde8 45%, var(--blue-light) 75%, var(--green) 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin-bottom: 1rem;
-        }
-
-        .fl-header p {
-          font-family: 'Barlow', sans-serif;
-          font-weight: 300;
-          font-size: 0.9rem;
-          color: #b8c4d0;
-          max-width: 500px;
-          line-height: 1.7;
+          position: absolute;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(46,122,181,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(46,122,181,0.03) 1px, transparent 1px);
+          background-size: 48px 48px;
+          pointer-events: none;
         }
 
         /* ── Category tabs ── */
@@ -345,6 +296,35 @@ export default function Samochody() {
 
         .fl-card-book:hover { color: #9fee6a; }
 
+        /* ── Specs ── */
+        .fl-card-specs {
+          display: flex;
+          gap: 0.5rem;
+          margin: 0.65rem 0 0;
+          flex-wrap: wrap;
+        }
+
+        .fl-card-spec {
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
+          font-family: 'Barlow Condensed', sans-serif;
+          font-size: 0.7rem;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #7a8e9e;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(79,163,212,0.1);
+          border-radius: 4px;
+          padding: 0.22rem 0.55rem;
+        }
+
+        .fl-card-spec svg {
+          flex-shrink: 0;
+          opacity: 0.6;
+        }
+
         .fl-empty {
           grid-column: 1 / -1;
           text-align: center;
@@ -370,71 +350,21 @@ export default function Samochody() {
       `}</style>
 
       <main className="fl-page">
-        {/* Header */}
-        <div className="fl-header">
-          <p className="fl-header-eyebrow">Motion Drive</p>
-          <h1>Nasza Flota</h1>
-          <p>Wybierz pojazd dopasowany do swoich potrzeb — od eleganckich sedanów po luksusowe modele premium.</p>
-        </div>
-
-        {/* Category tabs */}
-        <div className="fl-tabs">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              className={`fl-tab${activeCategory === cat ? " active" : ""}`}
-              onClick={() => setActiveCategory(cat)}
-            >
-              <span>{cat}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Section with price filter */}
+        {/* Section with filters + grid */}
         <div className="fl-section">
-          {/* Price filter — top-right */}
-          <div className="fl-price-bar">
-            <span className="fl-price-label">Maks. cena</span>
-            <input
-              type="range"
-              className="fl-price-slider"
-              min={100}
-              max={MAX_PRICE}
-              step={10}
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(Number(e.target.value))}
-              style={{
-                background: `linear-gradient(90deg, var(--blue) 0%, var(--green) ${((maxPrice / MAX_PRICE) * 100).toFixed(0)}%, #1a2230 ${((maxPrice / MAX_PRICE) * 100).toFixed(0)}%)`,
-              }}
-            />
-            <span className="fl-price-value">{maxPrice} zł</span>
-          </div>
-
-          {/* Grid */}
+          <FleetFilters
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+            maxPrice={maxPrice}
+            onPriceChange={setMaxPrice}
+            maxPriceLimit={MAX_PRICE}
+          />
           <div className="fl-grid">
             {filtered.length === 0 ? (
               <div className="fl-empty">Brak pojazdów spełniających kryteria</div>
             ) : (
               filtered.map((car) => (
-                <div key={car.id} className="fl-card">
-                  <div className="fl-card-img">
-                    <Image src={car.img} alt={car.name} fill style={{ objectFit: "cover" }} />
-                    <span className="fl-card-badge">{car.category}</span>
-                  </div>
-                  <div className="fl-card-body">
-                    <div className="fl-card-name">{car.name}</div>
-                    <div className="fl-card-price-row">
-                      <span className="fl-card-price">{car.price}</span>
-                      <span className="fl-card-price-unit">zł / dzień</span>
-                    </div>
-                    <div className="fl-card-cta">
-                      <button className="fl-card-link fl-card-cta">Szczegóły</button>
-                      <button className="fl-card-book fl-card-cta">
-                        Zarezerwuj →
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <CarCard key={car.id} car={car} />
               ))
             )}
           </div>

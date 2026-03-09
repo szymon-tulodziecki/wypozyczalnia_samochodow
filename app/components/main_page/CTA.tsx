@@ -15,6 +15,10 @@ export default function CTA() {
           padding: 3.5rem 2rem;
           text-align: center;
           overflow: hidden;
+          background-image: url('/road.jpg');
+          background-size: cover;
+          background-position: center;
+          background-attachment: fixed;
         }
 
         .hp-cta::before {
@@ -23,6 +27,14 @@ export default function CTA() {
           top: 0; left: 0; right: 0;
           height: 1px;
           background: linear-gradient(90deg, transparent, var(--blue) 25%, var(--blue-light) 48%, var(--green) 72%, transparent);
+          z-index: 2;
+        }
+
+        .hp-cta-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(8, 9, 11, 0.75);
+          z-index: 0;
         }
 
         .hp-cta::after {
@@ -79,6 +91,7 @@ export default function CTA() {
       `}</style>
 
       <section className="hp-cta">
+        <div className="hp-cta-overlay" />
         <h2 className="hp-cta-title">Gotowy do drogi?</h2>
         <p className="hp-cta-sub">Zarezerwuj samochód już teraz i wyrusz w trasę bez zbędnych formalności.</p>
         <div className="hp-cta-actions">

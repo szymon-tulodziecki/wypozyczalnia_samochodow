@@ -354,23 +354,13 @@ export default function RegisterPage() {
         /* ── Responsive ── */
         @media (max-width: 860px) {
           .reg-wrap {
-            flex-direction: column;
             height: auto;
             min-height: 100vh;
           }
 
           .reg-photo {
-            flex: 0 0 240px;
-            height: 240px;
-            width: 100%;
+            display: none;
           }
-
-          .reg-photo::after {
-            background: linear-gradient(to bottom, transparent 40%, #08090b 100%);
-          }
-
-          .reg-photo-badge { bottom: 1.2rem; left: 1.25rem; }
-          .reg-photo-badge-text { font-size: 1.2rem; }
 
           .reg-form-panel {
             flex: 1;
@@ -381,8 +371,6 @@ export default function RegisterPage() {
         }
 
         @media (max-width: 480px) {
-          .reg-photo { flex: 0 0 200px; height: 200px; }
-          .reg-photo-badge { display: none; }
           .auth-row { grid-template-columns: 1fr; gap: 0; }
         }
       `}</style>
@@ -394,9 +382,10 @@ export default function RegisterPage() {
           <Image
             src="/porsche.jpg"
             alt="Luxury car"
-            fill
-            sizes="50vw"
+            width={1200}
+            height={800}
             priority
+            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
           />
         </div>
 

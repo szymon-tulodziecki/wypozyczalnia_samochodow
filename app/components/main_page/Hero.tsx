@@ -48,22 +48,6 @@ export default function Hero() {
           pointer-events: none;
         }
 
-        /* Bottom separator line */
-        .hp-hero::after {
-          content: '';
-          position: absolute;
-          bottom: 0; left: 0; right: 0;
-          height: 2px;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            var(--blue) 25%,
-            var(--blue-light) 48%,
-            var(--green) 72%,
-            transparent
-          );
-        }
-
         /* Two-column layout */
         .hp-hero-inner {
           position: relative;

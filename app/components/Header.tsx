@@ -145,9 +145,10 @@ export default function Header() {
           font-size: 0.76rem;
           letter-spacing: 0.22em;
           text-transform: uppercase;
-          color: var(--text-dim);
+          color: #dce8f0;
           text-decoration: none;
           transition: color 0.25s;
+          text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 16px rgba(0,0,0,0.7);
         }
 
         .md-navlist li a::after {
@@ -194,9 +195,12 @@ export default function Header() {
           color: #fff;
           text-decoration: none;
           overflow: hidden;
-          border: 1px solid rgba(109,191,69,0.35);
+          border: 1px solid rgba(109,191,69,0.6);
           clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
           transition: border-color 0.3s;
+          background: rgba(8, 9, 11, 0.75);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
         }
 
         .md-cta::before {
@@ -204,7 +208,7 @@ export default function Header() {
           position: absolute;
           inset: 0;
           background: linear-gradient(110deg, var(--blue) 0%, var(--green-dark) 100%);
-          opacity: 0.18;
+          opacity: 0.35;
           transition: opacity 0.35s;
         }
 
@@ -361,7 +365,7 @@ export default function Header() {
               </li>
             ))}
             <li>
-              <Link href="/rezerwacja" className="md-cta">
+              <Link href="/login" className="md-cta">
                 <span>Zarezerwuj</span>
               </Link>
             </li>
@@ -383,7 +387,7 @@ export default function Header() {
             {label}
           </Link>
         ))}
-        <Link href="/rezerwacja" className="md-cta" onClick={() => setMenuOpen(false)}>
+        <Link href="/login" className="md-cta" onClick={() => setMenuOpen(false)}>
           <span>Zarezerwuj</span>
         </Link>
       </div>

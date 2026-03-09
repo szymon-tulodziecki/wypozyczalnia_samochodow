@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -42,6 +45,7 @@ const socialLinks = [
 
 export default function Footer() {
   const year = new Date().getFullYear();
+  const [modal, setModal] = useState<string | null>(null);
 
   return (
     <>
@@ -365,18 +369,22 @@ export default function Footer() {
           gap: 1.5rem;
         }
 
-        .md-footer-legal a {
+        .md-footer-legal button {
           font-family: 'Barlow Condensed', sans-serif;
           font-weight: 300;
           font-size: 0.68rem;
           letter-spacing: 0.12em;
           text-transform: uppercase;
           color: #6a8090;
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
           text-decoration: none;
           transition: color 0.2s;
         }
 
-        .md-footer-legal a:hover { color: var(--text-muted); }
+        .md-footer-legal button:hover { color: var(--text-muted); }
 
         /* ── Responsive ── */
         @media (max-width: 900px) {
@@ -414,6 +422,97 @@ export default function Footer() {
           }
           .md-footer-legal { gap: 1rem; justify-content: center; }
         }
+
+        /* ── Legal Modals ── */
+        .md-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.75);
+          backdrop-filter: blur(4px);
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1.5rem;
+        }
+
+        .md-modal {
+          background: #0d1117;
+          border: 1px solid rgba(79,163,212,0.2);
+          border-radius: 12px;
+          max-width: 640px;
+          width: 100%;
+          max-height: 80vh;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .md-modal::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, var(--blue), var(--green));
+        }
+
+        .md-modal-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 1.4rem 1.6rem 1rem;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .md-modal-title {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: 1.5rem;
+          letter-spacing: 0.08em;
+          color: #fff;
+        }
+
+        .md-modal-close {
+          background: none;
+          border: 1px solid rgba(255,255,255,0.1);
+          color: #7a8e9e;
+          width: 28px; height: 28px;
+          border-radius: 6px;
+          cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 1rem;
+          transition: border-color 0.2s, color 0.2s;
+        }
+
+        .md-modal-close:hover {
+          border-color: rgba(79,163,212,0.4);
+          color: #fff;
+        }
+
+        .md-modal-body {
+          padding: 1.4rem 1.6rem 1.6rem;
+          overflow-y: auto;
+          font-family: 'Barlow', sans-serif;
+          font-weight: 300;
+          font-size: 0.85rem;
+          line-height: 1.75;
+          color: #b8c4d0;
+          flex: 1;
+        }
+
+        .md-modal-body h3 {
+          font-family: 'Barlow Condensed', sans-serif;
+          font-weight: 600;
+          font-size: 0.7rem;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: var(--blue-light);
+          margin: 1.2rem 0 0.4rem;
+        }
+
+        .md-modal-body h3:first-child { margin-top: 0; }
+
+        .md-modal-body p { margin-bottom: 0.6rem; }
       `}</style>
 
       <footer className="md-footer">
@@ -530,12 +629,73 @@ export default function Footer() {
             © {year} <strong>Motion Drive</strong> — Wszelkie prawa zastrzeżone
           </p>
           <nav className="md-footer-legal">
-            <Link href="/polityka-prywatnosci">Polityka prywatności</Link>
-            <Link href="/regulamin">Regulamin</Link>
-            <Link href="/cookies">Cookies</Link>
+            <button onClick={() => setModal('privacy')}>Polityka prywatności</button>
+            <button onClick={() => setModal('regulamin')}>Regulamin</button>
+            <button onClick={() => setModal('cookies')}>Cookies</button>
           </nav>
         </div>
       </footer>
+
+      {modal && (
+        <div className="md-modal-overlay" onClick={() => setModal(null)}>
+          <div className="md-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="md-modal-head">
+              <span className="md-modal-title">
+                {modal === 'privacy' && 'Polityka prywatności'}
+                {modal === 'regulamin' && 'Regulamin'}
+                {modal === 'cookies' && 'Cookies'}
+              </span>
+              <button className="md-modal-close" onClick={() => setModal(null)}>×</button>
+            </div>
+            <div className="md-modal-body">
+              {modal === 'privacy' && (
+                <>
+                  <h3>Administrator danych</h3>
+                  <p>Administratorem Twoich danych osobowych jest Motion Drive sp. z o.o. z siedzibą w Warszawie, ul. Przykładowa 1.</p>
+                  <h3>Zakres zbieranych danych</h3>
+                  <p>Zbieramy dane niezbędne do realizacji usług: imię i nazwisko, adres e-mail, numer telefonu, numer prawa jazdy oraz informacje dotyczące rezerwacji.</p>
+                  <h3>Cel przetwarzania</h3>
+                  <p>Dane przetwarzane są w celu realizacji umowy najmu pojazdu, obsługi klienta, wystawiania dokumentów rozliczeniowych oraz, za Twoją zgodą, w celach marketingowych.</p>
+                  <h3>Prawa użytkownika (RODO)</h3>
+                  <p>Masz prawo do dostępu, sprostowania, usunięcia lub ograniczenia przetwarzania swoich danych, a także do wniesienia sprzeciwu lub przeniesienia danych. Wnioski kieruj na: rodo@motiondrive.pl.</p>
+                  <h3>Okres przechowywania</h3>
+                  <p>Dane przechowujemy przez czas trwania umowy oraz przez okres wymagany przepisami prawa (do 5 lat od zakończenia umowy).</p>
+                </>
+              )}
+              {modal === 'regulamin' && (
+                <>
+                  <h3>§1 Postanowienia ogólne</h3>
+                  <p>Niniejszy regulamin określa zasady wynajmu pojazdów przez Motion Drive. Zawarcie umowy najmu jest równoznaczne z akceptacją regulaminu.</p>
+                  <h3>§2 Wymagania najemcy</h3>
+                  <p>Warunkiem wynajmu jest ukończone 21 lat, posiadanie ważnego prawa jazdy kategorii B od co najmniej 2 lat oraz ważnego dokumentu tożsamości.</p>
+                  <h3>§3 Rezerwacja i płatność</h3>
+                  <p>Rezerwacji można dokonać online lub telefonicznie. Wymagana jest zwrotna kaucja określona w cenniku. Płatność akceptowana jest gotówką oraz kartą płatniczą.</p>
+                  <h3>§4 Użytkowanie pojazdu</h3>
+                  <p>Pojazd można użytkować wyłącznie na terytorium Polski, chyba że umowa stanowi inaczej. Zabronione jest: palenie w pojeździe, przewóz zwierząt bez zabezpieczenia oraz użytkowanie niezgodne z przeznaczeniem.</p>
+                  <h3>§5 Odpowiedzialność</h3>
+                  <p>Najemca odpowiada za wszelkie szkody wyrządzone w pojeździe podczas trwania najmu. Pojazdy objęte są ubezpieczeniem OC i AC z udziałem własnym najemcy wskazanym w umowie.</p>
+                  <h3>§6 Reklamacje</h3>
+                  <p>Reklamacje należy składać pisemnie w ciągu 14 dni od zakończenia najmu na adres: kontakt@motiondrive.pl.</p>
+                </>
+              )}
+              {modal === 'cookies' && (
+                <>
+                  <h3>Czym są pliki Cookies?</h3>
+                  <p>Cookies to małe pliki tekstowe zapisywane na Twoim urządzeniu podczas odwiedzania serwisu. Umożliwiają zapamiętanie ustawień i poprawiają komfort korzystania ze strony.</p>
+                  <h3>Cookies niezbędne</h3>
+                  <p>Konieczne do prawidłowego działania serwisu — sesja użytkownika, ochrona CSRF. Nie można ich wyłączyć bez wpływu na funkcjonalność strony.</p>
+                  <h3>Cookies analityczne</h3>
+                  <p>Używamy Google Analytics do analizy ruchu na stronie. Dane są anonimizowane i nie identyfikują osobiście użytkowników. Możesz je wyłączyć w ustawieniach przeglądarki.</p>
+                  <h3>Cookies marketingowe</h3>
+                  <p>Opcjonalne cookies służące do personalizacji treści reklamowych. Aktywowane wyłącznie po wyrażeniu zgody przez użytkownika.</p>
+                  <h3>Zarządzanie cookies</h3>
+                  <p>Cookies możesz kontrolować i usuwać za pomocą ustawień swojej przeglądarki. Wyłączenie niektórych cookies może ograniczyć funkcjonalność serwisu.</p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

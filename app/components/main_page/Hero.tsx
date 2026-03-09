@@ -8,10 +8,10 @@ export default function Hero() {
         .hp-hero {
           position: relative;
           z-index: 1;
-          min-height: 100vh;
+          height: 100%;
           display: flex;
           align-items: center;
-          padding: 7rem 2rem 4rem;
+          padding: 5rem 2rem 2rem;
           overflow: hidden;
           background: #08090b;
         }
@@ -97,7 +97,7 @@ export default function Hero() {
           letter-spacing: 0.35em;
           text-transform: uppercase;
           color: var(--green);
-          margin-bottom: 1.4rem;
+          margin-bottom: 0.8rem;
           display: flex;
           align-items: center;
           gap: 0.8rem;
@@ -114,10 +114,10 @@ export default function Hero() {
         .hp-hero-title {
           animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.25s both;
           font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(2.8rem, 6vw, 5.6rem);
+          font-size: clamp(2.2rem, 5vw, 4.2rem);
           line-height: 0.92;
           letter-spacing: 0.04em;
-          margin-bottom: 1.8rem;
+          margin-bottom: 1rem;
           background: linear-gradient(110deg, #ffffff 0%, #c8dde8 40%, var(--blue-light) 70%, var(--green) 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -129,10 +129,11 @@ export default function Hero() {
           font-family: 'Barlow', sans-serif;
           font-weight: 300;
           font-size: 0.88rem;
+          line-height: 1.7;
           line-height: 1.8;
           color: #b8c4d0;
           max-width: 440px;
-          margin-bottom: 2.8rem;
+          margin-bottom: 1.6rem;
         }
 
         /* CTA row */
@@ -213,8 +214,8 @@ export default function Hero() {
         .hp-hero-stats {
           display: flex;
           gap: 2rem;
-          margin-top: 3.5rem;
-          padding-top: 2rem;
+          margin-top: 1.8rem;
+          padding-top: 1.2rem;
           border-top: 1px solid #0d1318;
         }
 

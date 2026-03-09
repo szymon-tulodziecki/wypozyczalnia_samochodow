@@ -130,7 +130,7 @@ export default function Hero() {
           font-weight: 300;
           font-size: 0.88rem;
           line-height: 1.8;
-          color: #3d4a56;
+          color: #b8c4d0;
           max-width: 440px;
           margin-bottom: 2.8rem;
         }
@@ -196,7 +196,7 @@ export default function Hero() {
           font-size: 0.78rem;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #3d4a56;
+          color: #b8c4d0;
           background: none;
           border: 1px solid #141c24;
           cursor: pointer;
@@ -348,10 +348,15 @@ export default function Hero() {
               Wynajmij samochód dopasowany do swoich potrzeb już dziś.
             </p>
             <div className="hp-hero-actions">
+              <Link href="/samochody">
               <button className="hp-btn-primary">
                 <span>Przeglądaj flotę</span>
               </button>
-              <button className="hp-btn-secondary">Skontaktuj się</button>
+              </Link>
+              
+              <Link href="/kontakt">
+                <button className="hp-btn-secondary">Skontaktuj się</button>
+              </Link>
             </div>
 
             <div className="hp-hero-stats">

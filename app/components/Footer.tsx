@@ -53,8 +53,8 @@ export default function Footer() {
           --blue-light: #4fa3d4;
           --green:      #6dbf45;
           --green-dark: #4e9930;
-          --text-muted: #5a6270;
-          --text-dim:   #9aa3ae;
+          --text-muted: #b8c4d0;
+          --text-dim:   #dce8f0;
         }
 
         /* ── Shell ── */
@@ -178,7 +178,7 @@ export default function Footer() {
           font-weight: 300;
           font-size: 0.82rem;
           line-height: 1.7;
-          color: #3d4650;
+          color: #9aaabb;
           max-width: 240px;
           margin-bottom: 1.6rem;
         }
@@ -257,7 +257,7 @@ export default function Footer() {
           font-weight: 300;
           font-size: 0.85rem;
           letter-spacing: 0.08em;
-          color: #3d4650;
+          color: #c8d4de;
           text-decoration: none;
           display: inline-flex;
           align-items: center;
@@ -275,7 +275,7 @@ export default function Footer() {
         }
 
         .md-footer-nav li a:hover {
-          color: #9aa3ae;
+          color: #dce8f0;
           gap: 0.65rem;
         }
 
@@ -325,7 +325,7 @@ export default function Footer() {
           font-family: 'Barlow', sans-serif;
           font-weight: 400;
           font-size: 0.82rem;
-          color: #5a6a78;
+          color: #9aaabb;
           transition: color 0.2s;
         }
 
@@ -352,11 +352,11 @@ export default function Footer() {
           font-weight: 300;
           font-size: 0.72rem;
           letter-spacing: 0.1em;
-          color: #252e38;
+          color: #7a8e9e;
         }
 
         .md-footer-copy strong {
-          color: #2e3d4a;
+          color: #aabbc8;
           font-weight: 600;
         }
 
@@ -371,7 +371,7 @@ export default function Footer() {
           font-size: 0.68rem;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          color: #1e2830;
+          color: #6a8090;
           text-decoration: none;
           transition: color 0.2s;
         }

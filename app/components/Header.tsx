@@ -31,8 +31,8 @@ export default function Header() {
           --green:      #6dbf45;
           --green-dark: #4e9930;
           --surface:    rgba(14, 18, 24, 0.92);
-          --text-muted: #5a6270;
-          --text-dim:   #9aa3ae;
+          --text-muted: #b8c4d0;
+          --text-dim:   #dce8f0;
         }
 
         .md-header {
@@ -279,7 +279,7 @@ export default function Header() {
           font-size: 0.8rem;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #7a8898;
+          color: #c8d4de;
           text-decoration: none;
           transition: color 0.2s;
           padding: 0.7rem 0;

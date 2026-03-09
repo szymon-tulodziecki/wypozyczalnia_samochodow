@@ -130,6 +130,7 @@ export default function Hero() {
           font-weight: 300;
           font-size: 0.88rem;
           line-height: 1.7;
+          line-height: 1.8;
           color: #b8c4d0;
           max-width: 440px;
           margin-bottom: 1.6rem;

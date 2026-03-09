@@ -380,6 +380,7 @@ export default function Footer() {
           border: none;
           cursor: pointer;
           padding: 0;
+          text-decoration: none;
           transition: color 0.2s;
         }
 

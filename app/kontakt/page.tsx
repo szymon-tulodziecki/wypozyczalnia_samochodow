@@ -82,10 +82,10 @@ export default function Kontakt() {
           z-index: 1;
           width: 100%;
           max-width: 440px;
-          background: rgba(14, 18, 24, 0.85);
+          background: rgba(14, 18, 24, 0.95);
           backdrop-filter: blur(20px) saturate(1.6);
           -webkit-backdrop-filter: blur(20px) saturate(1.6);
-          border: 1px solid rgba(46, 122, 181, 0.15);
+          border: 1px solid rgba(46, 122, 181, 0.25);
           border-radius: 2px;
           overflow: hidden;
         }
@@ -151,8 +151,8 @@ export default function Kontakt() {
           font-size: 0.88rem;
           font-weight: 300;
           color: #dce8f0;
-          background: rgba(8, 9, 11, 0.7);
-          border: 1px solid #1e2830;
+          background: rgba(8, 9, 11, 0.88);
+          border: 1px solid #2a3d50;
           border-radius: 1px;
           outline: none;
           transition: border-color 0.3s, box-shadow 0.3s;
@@ -233,24 +233,32 @@ export default function Kontakt() {
           position: absolute;
           top: 50%;
           transform: translateY(-50%);
-          width: 200px;
+          width: 260px;
           height: auto;
           pointer-events: none;
           z-index: 0;
         }
 
         .knt-tire-left {
-          left: -20px;
-          -webkit-mask-image: linear-gradient(to right, black 0%, transparent 85%);
-          mask-image: linear-gradient(to right, black 0%, transparent 85%);
-          opacity: 0.1;
+          left: -30px;
+          -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%),
+                              linear-gradient(to right, black 0%, transparent 90%);
+          mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%),
+                              linear-gradient(to right, black 0%, transparent 90%);
+          -webkit-mask-composite: intersect;
+          mask-composite: intersect;
+          opacity: 0.28;
         }
 
         .knt-tire-right {
-          right: -20px;
-          -webkit-mask-image: linear-gradient(to left, black 0%, transparent 85%);
-          mask-image: linear-gradient(to left, black 0%, transparent 85%);
-          opacity: 0.1;
+          right: -30px;
+          -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%),
+                              linear-gradient(to left, black 0%, transparent 90%);
+          mask-image: linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%),
+                              linear-gradient(to left, black 0%, transparent 90%);
+          -webkit-mask-composite: intersect;
+          mask-composite: intersect;
+          opacity: 0.28;
         }
 
         @media (max-width: 1080px) {

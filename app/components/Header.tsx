@@ -361,7 +361,7 @@ export default function Header() {
               </li>
             ))}
             <li>
-              <Link href="/rezerwacja" className="md-cta">
+              <Link href="/login" className="md-cta">
                 <span>Zarezerwuj</span>
               </Link>
             </li>
@@ -383,7 +383,7 @@ export default function Header() {
             {label}
           </Link>
         ))}
-        <Link href="/rezerwacja" className="md-cta" onClick={() => setMenuOpen(false)}>
+        <Link href="/login" className="md-cta" onClick={() => setMenuOpen(false)}>
           <span>Zarezerwuj</span>
         </Link>
       </div>

@@ -74,7 +74,7 @@ export default function kontakt() {
               textAlign: "center",
             }}
           >
-            <div style={{ fontSize: "3rem", marginBottom: "16px" }}>✅</div>
+            <div style={{ fontSize: "3rem", marginBottom: "16px" }}></div>
             <h2
               style={{
                 fontFamily: "'Bebas Neue', sans-serif",

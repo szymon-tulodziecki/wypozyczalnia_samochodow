@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function CTA() {
   return (
     <>
@@ -80,7 +82,9 @@ export default function CTA() {
         <h2 className="hp-cta-title">Gotowy do drogi?</h2>
         <p className="hp-cta-sub">Zarezerwuj samochód już teraz i wyrusz w trasę bez zbędnych formalności.</p>
         <div className="hp-cta-actions">
+          <Link href="/login">
           <button className="hp-btn-primary">Zarezerwuj teraz</button>
+          </Link>
           <button className="hp-btn-secondary">Zobacz flotę</button>
         </div>
       </section>

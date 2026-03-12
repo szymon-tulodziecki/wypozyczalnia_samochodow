@@ -2,9 +2,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { authAPI } from '@/lib/api';
 import type { ChangeEvent, FormEvent } from 'react';
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -17,14 +20,63 @@ export default function RegisterPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [modal, setModal] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleChange = (field: string) => (e: ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [field]: e.target.value }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Register:', formData);
+    setError('');
+    setSuccess('');
+
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
+      setError('Wypełnij wszystkie wymagane pola.');
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError('Hasło musi mieć co najmniej 8 znaków.');
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Hasła nie są zgodne.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await authAPI.register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone || undefined,
+        password: formData.password,
+      });
+
+      setSuccess(result.message);
+      setFormData({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        password: '',
+        confirmPassword: '',
+      });
+      setAgreed(false);
+
+      window.setTimeout(() => {
+        router.push('/login?registered=1');
+      }, 1400);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Nie udało się utworzyć konta.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -295,6 +347,25 @@ export default function RegisterPage() {
           color: var(--text-muted); margin-top: 0.2rem;
         }
 
+        .auth-feedback {
+          margin-bottom: 0.75rem;
+          padding: 0.7rem 0.9rem;
+          border-radius: 6px;
+          font-family: 'Barlow', sans-serif;
+          font-size: 0.78rem;
+          line-height: 1.45;
+        }
+        .auth-feedback--error {
+          color: #fca5a5;
+          background: rgba(127, 29, 29, 0.24);
+          border: 1px solid rgba(248, 113, 113, 0.28);
+        }
+        .auth-feedback--success {
+          color: #bbf7d0;
+          background: rgba(20, 83, 45, 0.24);
+          border: 1px solid rgba(74, 222, 128, 0.24);
+        }
+
         /* ── Modal ── */
         .reg-modal-overlay {
           position: fixed; inset: 0;
@@ -397,6 +468,9 @@ export default function RegisterPage() {
             <p className="auth-subtitle">Utwórz nowe konto w serwisie</p>
 
             <form onSubmit={handleSubmit}>
+              {error && <div className="auth-feedback auth-feedback--error">{error}</div>}
+              {success && <div className="auth-feedback auth-feedback--success">{success}</div>}
+
               <div className="auth-row">
                 <div className="auth-field">
                   <label className="auth-label" htmlFor="firstName">Imię</label>
@@ -480,8 +554,8 @@ export default function RegisterPage() {
                 </span>
               </label>
 
-              <button type="submit" className="auth-btn" disabled={!agreed}>
-                Utwórz konto
+              <button type="submit" className="auth-btn" disabled={!agreed || loading}>
+                {loading ? 'Tworzenie konta…' : 'Utwórz konto'}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
                 </svg>

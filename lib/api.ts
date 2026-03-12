@@ -1,7 +1,37 @@
 ﻿import { supabase } from './supabase';
-import type { Car, User, CreateCarInput } from '../types';
+import type { Car, User, CreateCarInput, Reservation } from '../types';
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
+
+type DbErrorLike = {
+  code?: string;
+  message?: string;
+  details?: string;
+  hint?: string;
+};
+
+function isMissingReservationsRelation(error: DbErrorLike) {
+  const message = error.message?.toLowerCase() ?? '';
+  return (
+    error.code === '42P01' ||
+    error.code === 'PGRST205' ||
+    error.code === 'PGRST116' ||
+    message.includes('reservations') && (
+      message.includes('does not exist') ||
+      message.includes('could not find the table') ||
+      message.includes('schema cache')
+    )
+  );
+}
+
+function toError(error: unknown, fallbackMessage: string) {
+  if (error instanceof Error) return error;
+  if (error && typeof error === 'object') {
+    const dbError = error as DbErrorLike;
+    if (dbError.message) return new Error(dbError.message);
+  }
+  return new Error(fallbackMessage);
+}
 
 function mapProfile(row: Record<string, unknown>): User {
   const id = row.id as string;
@@ -30,6 +60,23 @@ export const authAPI = {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
+  },
+
+  register: async (payload: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    password: string;
+  }): Promise<{ message: string }> => {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json() as { message?: string; error?: string };
+    if (!res.ok) throw new Error(json.error ?? 'Nie udało się utworzyć konta');
+    return { message: json.message ?? 'Konto zostało utworzone' };
   },
 
   logout: async () => {
@@ -193,6 +240,72 @@ export const usersAPI = {
     if (uploadError) throw uploadError;
     const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
     const { data, error } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', id).select('*').single();
+    if (error) throw error;
+    return mapProfile(data as Record<string, unknown>);
+  },
+};
+
+// ─── Reservations ────────────────────────────────────────────────────────────
+
+export const reservationsAPI = {
+  getUserReservations: async (userId: string): Promise<Reservation[]> => {
+    const { data, error } = await supabase
+      .from('reservations')
+      .select('*, car:car_id(id, brand, model, year, price_per_day, images)')
+      .eq('user_id', userId)
+      .order('start_date', { ascending: false });
+    
+    if (error) {
+      if (isMissingReservationsRelation(error)) return [];
+      throw toError(error, 'Nie udało się pobrać rezerwacji');
+    }
+    
+    return (data || []) as Reservation[];
+  },
+
+  cancel: async (reservationId: string): Promise<void> => {
+    const { error } = await supabase
+      .from('reservations')
+      .update({ status: 'anulowana', updated_at: new Date().toISOString() })
+      .eq('id', reservationId);
+    
+    if (error) throw toError(error, 'Nie udało się anulować rezerwacji');
+  },
+};
+
+// ─── Profile ─────────────────────────────────────────────────────────────────
+
+export const profileAPI = {
+  getFullProfile: async (userId: string): Promise<User> => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+    
+    if (error) throw error;
+    return mapProfile(data as Record<string, unknown>);
+  },
+
+  updateProfile: async (userId: string, updates: {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    bio?: string;
+  }): Promise<User> => {
+    const payload: Record<string, unknown> = { updated_at: new Date().toISOString() };
+    if (updates.firstName) payload.first_name = updates.firstName;
+    if (updates.lastName) payload.last_name = updates.lastName;
+    if (updates.phone) payload.phone = updates.phone;
+    if (updates.bio) payload.bio = updates.bio;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(payload)
+      .eq('id', userId)
+      .select('*')
+      .single();
+    
     if (error) throw error;
     return mapProfile(data as Record<string, unknown>);
   },

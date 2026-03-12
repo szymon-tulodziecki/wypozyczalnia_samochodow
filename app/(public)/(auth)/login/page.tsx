@@ -1,16 +1,26 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/lib/api';
+import { useAuth } from '@/lib/useAuth';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login: storeSession } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('registered') === '1') {
+      setSuccessMessage('Konto zostało utworzone. Możesz się teraz zalogować.');
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +28,17 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await authAPI.login(email, password);
-      router.push('/admin');
+      const profile = await authAPI.getProfile();
+      
+      // Zapisz sesję z minimum danych prywatnych
+      storeSession({
+        id: profile.id,
+        email: profile.email,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      });
+      
+      router.push('/konto');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Błąd logowania');
     } finally {
@@ -324,6 +344,12 @@ export default function LoginPage() {
             <p className="auth-subtitle">Zaloguj się do swojego konta</p>
 
             <form onSubmit={handleSubmit}>
+              {successMessage && (
+                <p style={{ color: '#86efac', fontSize: '0.82rem', marginBottom: '0.75rem', fontFamily: 'Barlow, sans-serif' }}>
+                  {successMessage}
+                </p>
+              )}
+
               <div className="auth-field">
                 <label className="auth-label" htmlFor="email">Adres e-mail</label>
                 <div className="auth-input-wrapper">

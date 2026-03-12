@@ -1,7 +1,7 @@
-import Hero from './components/main_page/Hero';
-import BrandsBar from './components/main_page/BrandsBar';
-import Features from './components/main_page/Features';
-import CTA from './components/main_page/CTA';
+import Hero from '../components/main_page/Hero';
+import BrandsBar from '../components/main_page/BrandsBar';
+import Features from '../components/main_page/Features';
+import CTA from '../components/main_page/CTA';
 
 export default function Home() {
   return (

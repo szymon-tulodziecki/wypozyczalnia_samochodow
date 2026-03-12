@@ -118,7 +118,7 @@ export default function BrandsBar() {
       <div className="brands-bar" aria-label="Dostępne marki">
         <div className="brands-track">
           {doubled.map((brand, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center' }}>
+            <div key={`${brand.slug}-${i}`} style={{ display: 'flex', alignItems: 'center' }}>
               <div className={`brands-item ${['Audi', 'Maserati'].includes(brand.name) ? 'white-logo' : ''}`}>
                 <Image
                   src={brand.logo}

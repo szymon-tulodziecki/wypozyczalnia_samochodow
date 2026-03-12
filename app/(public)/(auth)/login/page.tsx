@@ -1,15 +1,29 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { authAPI } from '@/lib/api';
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login:', { email, password });
+    setError('');
+    setLoading(true);
+    try {
+      await authAPI.login(email, password);
+      router.push('/admin');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Błąd logowania');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -368,8 +382,14 @@ export default function LoginPage() {
                 <Link href="#" className="auth-forgot">Zapomniałeś hasła?</Link>
               </div>
 
-              <button type="submit" className="auth-btn">
-                Zaloguj się
+              {error && (
+                <p style={{ color: '#f87171', fontSize: '0.82rem', marginBottom: '0.75rem', fontFamily: 'Barlow, sans-serif' }}>
+                  {error}
+                </p>
+              )}
+
+              <button type="submit" className="auth-btn" disabled={loading}>
+                {loading ? 'Logowanie…' : 'Zaloguj się'}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"/>
                   <polyline points="12 5 19 12 12 19"/>

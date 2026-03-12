@@ -9,6 +9,11 @@ import { ArrowLeft, Fuel, Settings, Users, Calendar, CheckCircle2, Phone } from 
 const pln = (n: number) =>
   new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN', maximumFractionDigits: 0 }).format(n);
 
+const formatDescription = (text: string) => {
+  if (!text) return '';
+  return text.split('\\n').join('\n');
+};
+
 const FUEL_LABEL: Record<string, string> = {
   benzyna: 'Benzyna', diesel: 'Diesel', elektryczny: 'Elektryczny', hybryda: 'Hybryda', LPG: 'LPG',
 };
@@ -64,7 +69,6 @@ export default function CarDetailPage() {
           overflow: hidden;
         }
 
-        /* Subtelna siatka z Hero */
         .cd-page::before {
           content: '';
           position: absolute;
@@ -77,7 +81,6 @@ export default function CarDetailPage() {
           z-index: 0;
         }
 
-        /* Światła w tle */
         .cd-glow-top {
           position: absolute;
           top: -20%; right: 10%;
@@ -98,7 +101,7 @@ export default function CarDetailPage() {
         .cd-title {
           font-family: 'Bebas Neue', sans-serif;
           font-size: clamp(2.5rem, 4vw, 3.5rem);
-          line-height: 1;
+          line-height: 1.05;
           letter-spacing: 0.04em;
           background: linear-gradient(110deg, #ffffff 0%, #c8dde8 60%, var(--cd-blue-light) 100%);
           -webkit-background-clip: text;
@@ -112,7 +115,6 @@ export default function CarDetailPage() {
           line-height: 1;
         }
 
-        /* Guzik z uciętymi rogami z Hero */
         .cd-btn-primary {
           position: relative;
           display: flex;
@@ -144,45 +146,42 @@ export default function CarDetailPage() {
         .cd-btn-primary:hover { border-color: rgba(109,191,69,1); }
         .cd-btn-primary:hover::before { opacity: 0.7; }
         .cd-btn-primary span, .cd-btn-primary svg { position: relative; z-index: 1; }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      <div className="cd-page py-12 px-4 sm:px-6 lg:px-8">
+      <div className="cd-page pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="cd-glow-top" />
         
-        <div className="max-w-7xl mx-auto relative z-10 space-y-8">
+        <div className="max-w-7xl mx-auto relative z-10">
           
-          {/* Powrót */}
           <button 
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-[#b8c4d0] hover:text-white transition-colors font-['Barlow_Condensed'] uppercase tracking-wider text-sm"
+            className="flex items-center gap-2 text-[#b8c4d0] hover:text-white transition-colors font-['Barlow_Condensed'] uppercase tracking-wider text-sm mb-6 w-fit"
           >
             <ArrowLeft className="w-4 h-4" /> Wróć do floty
           </button>
 
-          {/* Główna sekcja: Galeria + Info */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
             
-            {/* Lewa: Galeria (szersza) */}
-            <div className="lg:col-span-7 space-y-4">
-              <div className="cd-panel p-2">
-                <div className="relative w-full aspect-16/10 rounded-xl overflow-hidden bg-black/50">
-                  <Image
-                    src={images[activeImg]}
-                    alt={`${car.brand} ${car.model}`}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 60vw"
-                    className="object-cover"
-                    priority
-                  />
-                  <span className={`absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-sm uppercase tracking-wider backdrop-blur-md ${STATUS_CLS[car.status] ?? 'bg-gray-800/80 text-gray-300'}`}>
-                    {STATUS_LABEL[car.status] ?? car.status}
-                  </span>
-                </div>
+            <div className="lg:col-span-7 flex flex-col gap-3">
+              <div className="relative w-full flex-1 min-h-75 rounded-xl overflow-hidden bg-black/50 border border-white/5 shadow-2xl">
+                <Image
+                  src={images[activeImg]}
+                  alt={`${car.brand} ${car.model}`}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  className="object-cover"
+                  priority
+                />
+                <span className={`absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-sm uppercase tracking-wider backdrop-blur-md z-20 ${STATUS_CLS[car.status] ?? 'bg-gray-800/80 text-gray-300'}`}>
+                  {STATUS_LABEL[car.status] ?? car.status}
+                </span>
               </div>
 
-              {/* Miniaturki */}
               {images.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide shrink-0">
                   {images.map((src, i) => (
                     <button 
                       key={i} 
@@ -196,78 +195,79 @@ export default function CarDetailPage() {
               )}
             </div>
 
-            {/* Prawa: Skrócone Info i CTA */}
-            <div className="lg:col-span-5 flex flex-col justify-center space-y-8">
-              <div>
-                <p className="text-[#6dbf45] font-['Barlow_Condensed'] uppercase tracking-[0.3em] text-sm mb-2 flex items-center gap-3">
-                  <span className="w-8 h-px bg-linear-to-r from-[#2e7ab5] to-[#6dbf45]"></span>
-                  {car.category}
-                </p>
-                <h1 className="cd-title">{car.brand} <br/>{car.model}</h1>
-              </div>
+            <div className="lg:col-span-5 cd-panel p-6 sm:p-8 flex flex-col justify-between">
+              <div className="space-y-6">
+                <div>
+                  <p className="text-[#6dbf45] font-['Barlow_Condensed'] uppercase tracking-[0.3em] text-sm mb-3 flex items-center gap-3">
+                    <span className="w-8 h-px bg-linear-to-r from-[#2e7ab5] to-[#6dbf45]"></span>
+                    {car.category}
+                  </p>
+                  <h1 className="cd-title">{car.brand} <br/>{car.model}</h1>
+                </div>
 
-              <div className="flex items-end gap-2">
-                <div className="cd-price">{pln(car.price_per_day)}</div>
-                <div className="text-[#b8c4d0] font-['Barlow_Condensed'] uppercase tracking-widest pb-1">/ dobę</div>
-              </div>
+                <div className="flex items-end gap-2 pt-2">
+                  <div className="cd-price">{pln(car.price_per_day)}</div>
+                  <div className="text-[#b8c4d0] font-['Barlow_Condensed'] uppercase tracking-widest pb-1">/ dobę</div>
+                </div>
 
-              {/* Siatka parametrów */}
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { icon: Fuel, label: 'Paliwo', value: FUEL_LABEL[car.fuel_type] ?? car.fuel_type },
-                  { icon: Settings, label: 'Skrzynia', value: car.gearbox === 'automatyczna' ? 'Automatyczna' : 'Manualna' },
-                  { icon: Calendar, label: 'Rocznik', value: `${car.year}` },
-                  { icon: Users, label: 'Miejsca', value: `${car.seats ?? 5}` },
-                ].map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="flex items-center gap-3 border-b border-white/5 pb-3">
-                    <Icon className="w-5 h-5 text-[#5ba3d8]" />
-                    <div>
-                      <p className="text-[10px] text-[#b8c4d0] uppercase tracking-widest">{label}</p>
-                      <p className="text-sm font-medium text-white">{value}</p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-5 pt-4 border-t border-white/5">
+                  {[
+                    { icon: Fuel, label: 'Paliwo', value: FUEL_LABEL[car.fuel_type] ?? car.fuel_type },
+                    { icon: Settings, label: 'Skrzynia', value: car.gearbox === 'automatyczna' ? 'Automatyczna' : 'Manualna' },
+                    { icon: Calendar, label: 'Rocznik', value: `${car.year}` },
+                    { icon: Users, label: 'Miejsca', value: `${car.seats ?? 5}` },
+                  ].map(({ icon: Icon, label, value }) => (
+                    <div key={label} className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0">
+                        <Icon className="w-5 h-5 text-[#5ba3d8]" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-[#b8c4d0] uppercase tracking-widest">{label}</p>
+                        <p className="text-sm font-medium text-white">{value}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
-              {/* Akcja */}
-              <div className="pt-4">
+              <div className="mt-8">
                 {car.status === 'dostepny' ? (
                   <a href="tel:+48000000000" className="cd-btn-primary">
                     <Phone className="w-5 h-5" />
                     <span>Zarezerwuj teraz</span>
                   </a>
                 ) : (
-                  <div className="w-full text-center py-4 rounded-xl border border-dashed border-white/20 text-[#b8c4d0] font-['Barlow_Condensed'] uppercase tracking-widest">
+                  <div className="w-full text-center py-4 rounded-xl border border-dashed border-white/20 text-[#b8c4d0] font-['Barlow_Condensed'] uppercase tracking-widest bg-white/5">
                     Pojazd niedostępny
                   </div>
                 )}
               </div>
             </div>
-            
           </div>
 
-          {/* Dolna sekcja: Detale i Opiekun */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-8 border-t border-white/5">
-            
-            {/* Lewa: Opis i Wyposażenie */}
-            <div className="lg:col-span-8 space-y-8">
+          <div className="mt-12 space-y-8">
+            <div className="cd-panel p-8 sm:p-12">
               {car.description && (
-                <div className="cd-panel p-8">
-                  <h2 className="font-['Bebas_Neue'] text-2xl tracking-wide mb-4 text-white">O pojeździe</h2>
-                  <p className="text-[#b8c4d0] font-light leading-relaxed whitespace-pre-line">
-                    {car.description}
+                <div className="max-w-4xl mx-auto text-center mb-12">
+                  <h2 className="font-['Bebas_Neue'] text-3xl tracking-wide mb-6 text-white text-center">O pojeździe</h2>
+                  <p className="text-[#b8c4d0] font-light leading-relaxed whitespace-pre-line text-lg text-center">
+                    {formatDescription(car.description)}
                   </p>
                 </div>
               )}
 
+              {car.description && car.features?.length ? (
+                <div className="w-24 h-px bg-linear-to-r from-transparent via-white/20 to-transparent mx-auto mb-12" />
+              ) : null}
+
               {car.features?.length ? (
-                <div className="cd-panel p-8">
-                  <h2 className="font-['Bebas_Neue'] text-2xl tracking-wide mb-6 text-white">Wyposażenie</h2>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="max-w-5xl mx-auto">
+                  <h2 className="font-['Bebas_Neue'] text-3xl tracking-wide mb-8 text-white text-center">Wyposażenie</h2>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-4 gap-x-6">
                     {car.features.map((f, i) => (
-                      <li key={i} className="flex items-center gap-3 text-sm text-[#b8c4d0]">
+                      <li key={i} className="flex items-center gap-3 text-sm text-[#b8c4d0] bg-white/5 px-4 py-3 rounded-lg border border-white/5">
                         <CheckCircle2 className="w-4 h-4 text-[#6dbf45] shrink-0" />
-                        {f}
+                        <span>{f}</span>
                       </li>
                     ))}
                   </ul>
@@ -275,34 +275,30 @@ export default function CarDetailPage() {
               ) : null}
             </div>
 
-            {/* Prawa: Sidebar (np. Opiekun) */}
-            <div className="lg:col-span-4">
-              {car.agent && (
-                <div className="cd-panel p-6 sticky top-24">
-                  <h3 className="font-['Barlow_Condensed'] text-[#b8c4d0] uppercase tracking-widest text-sm mb-6">Opiekun oferty</h3>
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-linear-to-br from-[#2e7ab5] to-[#4a8c2a] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                      {car.agent.first_name?.[0]}{car.agent.last_name?.[0]}
-                    </div>
-                    <div>
-                      <p className="font-medium text-white text-lg">{car.agent.first_name} {car.agent.last_name}</p>
-                      {car.agent.phone && <p className="text-[#5ba3d8] text-sm mt-1">{car.agent.phone}</p>}
-                    </div>
+            {car.agent && (
+              <div className="cd-panel p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 border-l-4 border-l-[#2e7ab5]">
+                <div className="flex items-center gap-5">
+                  <div className="w-16 h-16 rounded-full bg-linear-to-br from-[#2e7ab5] to-[#4a8c2a] flex items-center justify-center text-white font-bold text-2xl shadow-lg shrink-0">
+                    {car.agent.first_name?.[0]}{car.agent.last_name?.[0]}
                   </div>
-                  {car.agent.phone && (
-                    <a 
-                      href={`tel:${car.agent.phone}`} 
-                      className="w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white py-3 rounded-lg transition-colors font-['Barlow_Condensed'] uppercase tracking-widest text-sm"
-                    >
-                      <Phone className="w-4 h-4" /> Kontakt telefoniczny
-                    </a>
-                  )}
+                  <div>
+                    <h3 className="font-['Barlow_Condensed'] text-[#b8c4d0] uppercase tracking-widest text-xs mb-1">Twój opiekun oferty</h3>
+                    <p className="font-medium text-white text-xl">{car.agent.first_name} {car.agent.last_name}</p>
+                    {car.agent.phone && <p className="text-[#5ba3d8] font-light mt-0.5">{car.agent.phone}</p>}
+                  </div>
                 </div>
-              )}
-            </div>
-
+                
+                {car.agent.phone && (
+                  <a 
+                    href={`tel:${car.agent.phone}`} 
+                    className="flex items-center gap-3 bg-white/10 hover:bg-white/20 border border-white/10 text-white px-8 py-4 rounded-xl transition-all font-['Barlow_Condensed'] uppercase tracking-widest text-sm whitespace-nowrap"
+                  >
+                    <Phone className="w-5 h-5" /> Zadzwoń do opiekuna
+                  </a>
+                )}
+              </div>
+            )}
           </div>
-
         </div>
       </div>
     </>

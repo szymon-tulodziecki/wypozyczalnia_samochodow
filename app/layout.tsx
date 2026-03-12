@@ -1,39 +1,20 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import ChatBot from "./components/ChatBot";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Wypożyczalnia Samochodów Warszawa | Najniższe Ceny | AutoRent",
-  description: "Wynajem aut w Warszawie i okolicach. Oferujemy podstawienie samochodu pod lotnisko Chopina i Modlin. Sprawdź naszą ofertę!",
+  title: "Wypozyczalnia Samochodow Warszawa | Najnizsze Ceny | AutoRent",
+  description: "Wynajem aut w Warszawie i okolicach. Podstawienie pod lotnisko Chopin i Modlin.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pl">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
-        <Header/>
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer/>
-        <ChatBot />
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {children}
       </body>
     </html>
   );

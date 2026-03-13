@@ -333,13 +333,13 @@ export default function Hero() {
               Wynajmij samochód dopasowany do swoich potrzeb już dziś.
             </p>
             <div className="hp-hero-actions">
-              <Link href="/samochody">
+              <Link href="/cars">
               <button className="hp-btn-primary">
                 <span>Przeglądaj flotę</span>
               </button>
               </Link>
               
-              <Link href="/kontakt">
+              <Link href="/contact">
                 <button className="hp-btn-secondary">Skontaktuj się</button>
               </Link>
             </div>

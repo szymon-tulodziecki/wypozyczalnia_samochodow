@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ user: profile }, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    console.error('Create user failed:', err);
+    return NextResponse.json({ error: 'Wystąpił błąd serwera.' }, { status: 500 });
   }
 }

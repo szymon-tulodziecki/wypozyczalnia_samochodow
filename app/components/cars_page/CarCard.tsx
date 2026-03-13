@@ -16,7 +16,7 @@ export default function CarCard({ car }: { car: Car }) {
   const isAvailable = car.status === 'dostepny';
 
   return (
-    <Link href={`/samochody/${car.id}`} className="fpc-card-link" tabIndex={-1}>
+    <Link href={`/cars/${car.id}`} className="fpc-card-link" tabIndex={-1}>
       <article className="fpc-card">
 
         {/* Image area */}
@@ -82,7 +82,7 @@ export default function CarCard({ car }: { car: Car }) {
               <span className="fpc-btn-ghost">Szczegóły</span>
               <button
                 className={`fpc-btn-primary${!isAvailable ? ' fpc-btn-primary--disabled' : ''}`}
-                onClick={e => { e.preventDefault(); if (isAvailable) router.push(`/samochody/${car.id}`); }}
+                onClick={e => { e.preventDefault(); if (isAvailable) router.push(`/cars/${car.id}`); }}
                 disabled={!isAvailable}
                 tabIndex={isAvailable ? 0 : -1}
               >

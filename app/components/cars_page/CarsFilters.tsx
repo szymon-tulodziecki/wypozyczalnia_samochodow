@@ -14,7 +14,7 @@ export type GearboxType = "Wszystkie" | "manualna" | "automatyczna";
 
 export type SeatsOption = "Wszystkie" | "2" | "4" | "5" | "7+";
 
-type FleetFiltersProps = {
+type CarsFiltersProps = {
   activeCategory: Category;
   onCategoryChange: (c: Category) => void;
   maxPrice: number;
@@ -50,7 +50,7 @@ const SELECT_CLASS =
 const LABEL_CLASS =
   "text-[10px] font-['Barlow_Condensed'] uppercase tracking-[0.36em] text-[#4a5e6d] select-none";
 
-export default function FleetFilters(props: FleetFiltersProps) {
+export default function CarsFilters(props: CarsFiltersProps) {
   const {
     activeCategory,
     onCategoryChange,

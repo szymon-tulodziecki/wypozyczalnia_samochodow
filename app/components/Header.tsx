@@ -2,17 +2,30 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/useAuth';
+import { useRouter } from 'next/navigation';
 
-const navLinks = [
+const publicNavLinks = [
+  { href: '/', label: 'Strona Główna' },
+  { href: '/cars', label: 'Nasza Flota' },
+  { href: '/contact', label: 'Kontakt' },
+];
+
+const authNavLinks = [
   { href: '/', label: 'Strona Główna' },
   { href: '/samochody', label: 'Nasza Flota' },
   { href: '/kontakt', label: 'Kontakt' },
+  { href: '/konto', label: 'Moje Konto' },
 ];
 
 export default function Header() {
+  const router = useRouter();
+  const { isAuthenticated, session, logout, loading } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('/');
+
+  const navLinks = isAuthenticated ? authNavLinks : publicNavLinks;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -365,9 +378,21 @@ export default function Header() {
               </li>
             ))}
             <li>
-              <Link href="/login" className="md-cta">
-                <span>Zarezerwuj</span>
-              </Link>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => {
+                    logout();
+                    router.push('/');
+                  }}
+                  className="md-cta"
+                >
+                  <span>Wyloguj</span>
+                </button>
+              ) : (
+                <Link href="/login" className="md-cta">
+                  <span>Zaloguj się</span>
+                </Link>
+              )}
             </li>
           </ul>
 
@@ -387,9 +412,23 @@ export default function Header() {
             {label}
           </Link>
         ))}
-        <Link href="/login" className="md-cta" onClick={() => setMenuOpen(false)}>
-          <span>Zarezerwuj</span>
-        </Link>
+        {isAuthenticated ? (
+          <button
+            onClick={() => {
+              logout();
+              setMenuOpen(false);
+              router.push('/');
+            }}
+            className="md-cta"
+            style={{ marginTop: '1.2rem', alignSelf: 'flex-start' }}
+          >
+            <span>Wyloguj</span>
+          </button>
+        ) : (
+          <Link href="/login" className="md-cta" onClick={() => setMenuOpen(false)}>
+            <span>Zaloguj się</span>
+          </Link>
+        )}
       </div>
     </>
   );

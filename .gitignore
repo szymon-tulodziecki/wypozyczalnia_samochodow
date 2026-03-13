@@ -34,6 +34,18 @@ yarn-error.log*
 .env*
 !.env.local.example
 
+# sensitive local config and secrets
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+service-account*.json
+
 # vercel
 .vercel
 

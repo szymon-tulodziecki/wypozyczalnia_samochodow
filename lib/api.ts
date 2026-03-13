@@ -91,6 +91,23 @@ export const authAPI = {
     if (error) throw error;
     return mapProfile(data as Record<string, unknown>);
   },
+
+  register: async (payload: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    password: string;
+  }): Promise<{ message: string }> => {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json() as { message?: string; error?: string };
+    if (!res.ok) throw new Error(json.error ?? 'Nie udało się utworzyć konta');
+    return { message: json.message ?? 'Konto utworzone' };
+  },
 };
 // ─── Auth header helper ──────────────────────────────────────────────────────────
 

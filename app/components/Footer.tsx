@@ -6,8 +6,8 @@ import Image from 'next/image';
 
 const navLinks = [
   { href: '/', label: 'Strona Główna' },
-  { href: '/samochody', label: 'Nasza Flota' },
-  { href: '/kontakt', label: 'Kontakt' },
+  { href: '/cars', label: 'Nasza Flota' },
+  { href: '/contact', label: 'Kontakt' },
 ];
 
 const socialLinks = [
@@ -572,10 +572,10 @@ export default function Footer() {
           <div className="md-footer-col">
             <h4>Nasza Flota</h4>
             <ul className="md-footer-nav">
-              <li><Link href="/samochody?typ=sedan">Sedany</Link></li>
-              <li><Link href="/samochody?typ=suv">SUV-y</Link></li>
-              <li><Link href="/samochody?typ=van">Vany</Link></li>
-              <li><Link href="/samochody?typ=premium">Premium</Link></li>
+              <li><Link href="/cars?typ=sedan">Sedany</Link></li>
+              <li><Link href="/cars?typ=suv">SUV-y</Link></li>
+              <li><Link href="/cars?typ=van">Vany</Link></li>
+              <li><Link href="/cars?typ=premium">Premium</Link></li>
             </ul>
           </div>
 

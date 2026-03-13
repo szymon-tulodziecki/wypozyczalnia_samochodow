@@ -98,7 +98,9 @@ export default function CTA() {
           <Link href="/login">
           <button className="hp-btn-primary">Zarezerwuj teraz</button>
           </Link>
+          <Link href="/cars">
           <button className="hp-btn-secondary">Zobacz flotę</button>
+          </Link>
         </div>
       </section>
     </>

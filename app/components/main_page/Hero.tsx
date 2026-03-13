@@ -8,14 +8,12 @@ export default function Hero() {
         .hp-hero {
           position: relative;
           z-index: 1;
+          height: 100%;
           display: flex;
           align-items: center;
           padding: 5rem 2rem 2rem;
           overflow: hidden;
           background: #08090b;
-          min-height: 100vh;
-          height: 100svh;
-          box-sizing: border-box;
         }
 
         /* Subtle grid texture */
@@ -50,6 +48,20 @@ export default function Hero() {
           pointer-events: none;
         }
 
+        /* Two-column layout */
+        .hp-hero-inner {
+          position: relative;
+          z-index: 1;
+          max-width: 1280px;
+          margin: 0 auto;
+          width: 100%;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          align-items: center;
+          gap: 2rem;
+        }
+
+        /* ── Left: text ── */
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(22px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -60,20 +72,6 @@ export default function Hero() {
           to   { opacity: 1; transform: translateX(0); }
         }
 
-        /* single column layout */
-        .hp-hero-inner {
-          position: relative;
-          z-index: 1;
-          max-width: 1280px;
-          margin: 0 auto;
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0;
-        }
-
-        /* ── Left: text ── */
         .hp-hero-content {}
 
         .hp-hero-eyebrow {
@@ -110,18 +108,12 @@ export default function Hero() {
           background-clip: text;
         }
 
-        /* On tall screens, scale title with viewport height */
-        @media (min-width: 901px) and (min-height: 700px) {
-          .hp-hero-title {
-            font-size: clamp(2.2rem, min(5vw, 8vh), 5.5rem);
-          }
-        }
-
         .hp-hero-sub {
           animation: fadeUp 0.8s cubic-bezier(0.22,1,0.36,1) 0.42s both;
           font-family: 'Barlow', sans-serif;
           font-weight: 300;
-          font-size: clamp(0.82rem, 1.6vh, 1rem);
+          font-size: 0.88rem;
+          line-height: 1.7;
           line-height: 1.8;
           color: #b8c4d0;
           max-width: 440px;
@@ -215,7 +207,7 @@ export default function Hero() {
 
         .hp-hero-stat-num {
           font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(1.5rem, 3.5vh, 2.2rem);
+          font-size: 1.8rem;
           letter-spacing: 0.08em;
           background: linear-gradient(90deg, var(--blue-light), var(--green));
           -webkit-background-clip: text;
@@ -253,21 +245,6 @@ export default function Hero() {
           mask-composite: intersect;
         }
 
-        /* On tall screens, scale the car to fill height */
-        @media (min-width: 901px) and (min-height: 700px) {
-          .hp-hero-bg-car {
-            width: auto;
-            height: 80vh;
-            right: -10%;
-            bottom: 0;
-          }
-
-          .hp-hero-bg-car-img {
-            width: auto !important;
-            height: 100% !important;
-          }
-        }
-
         @keyframes carSlideIn {
           from { opacity: 0; transform: translateX(60px); }
           to   { opacity: 1; transform: translateX(0); }
@@ -295,18 +272,27 @@ export default function Hero() {
           pointer-events: none;
         }
 
+        /* single column — no visual column */
+        .hp-hero-inner {
+          position: relative;
+          z-index: 1;
+          max-width: 1280px;
+          margin: 0 auto;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
+        }
+
         /* ── Responsive ── */
         @media (max-width: 900px) {
-          .hp-hero {
-            height: auto;
-            min-height: 100svh;
-          }
           .hp-hero-bg-car { display: none; }
           .hp-hero-eyebrow { justify-content: flex-start; }
         }
 
         @media (max-width: 540px) {
-          .hp-hero { padding: 5.5rem 1.25rem 2rem; }
+          .hp-hero { padding: 5.5rem 1.25rem 2rem; min-height: auto; }
           .hp-hero-title { font-size: clamp(2.4rem, 12vw, 3.2rem); }
           .hp-hero-stats { gap: 1.2rem; flex-wrap: wrap; justify-content: center; }
           .hp-hero-stat { flex: 0 1 calc(33% - 0.8rem); text-align: center; }
@@ -347,13 +333,13 @@ export default function Hero() {
               Wynajmij samochód dopasowany do swoich potrzeb już dziś.
             </p>
             <div className="hp-hero-actions">
-              <Link href="/samochody">
-                <button className="hp-btn-primary">
-                  <span>Przeglądaj flotę</span>
-                </button>
+              <Link href="/cars">
+              <button className="hp-btn-primary">
+                <span>Przeglądaj flotę</span>
+              </button>
               </Link>
               
-              <Link href="/kontakt">
+              <Link href="/contact">
                 <button className="hp-btn-secondary">Skontaktuj się</button>
               </Link>
             </div>

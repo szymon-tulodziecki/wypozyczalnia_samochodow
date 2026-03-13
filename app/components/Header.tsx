@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation';
 
 const publicNavLinks = [
   { href: '/', label: 'Strona Główna' },
-  { href: '/samochody', label: 'Nasza Flota' },
-  { href: '/kontakt', label: 'Kontakt' },
+  { href: '/cars', label: 'Nasza Flota' },
+  { href: '/contact', label: 'Kontakt' },
 ];
 
 const authNavLinks = [

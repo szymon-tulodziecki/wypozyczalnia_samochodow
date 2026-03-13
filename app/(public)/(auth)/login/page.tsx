@@ -323,6 +323,35 @@ export default function LoginPage() {
           color: var(--green);
         }
 
+        /* ── Alerts ── */
+        .auth-alert {
+          padding: 0.65rem 1rem;
+          margin-bottom: 0.8rem;
+          border-radius: 2px;
+          font-family: 'Barlow', sans-serif;
+          font-size: 0.82rem;
+          font-weight: 400;
+          border-left: 3px solid;
+          animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-alert.error {
+          background: rgba(220, 53, 69, 0.1);
+          color: #ff6b6b;
+          border-color: #ff6b6b;
+        }
+
+        .auth-alert.success {
+          background: rgba(109, 191, 69, 0.1);
+          color: #51cf66;
+          border-color: #51cf66;
+        }
+
         @media (max-width: 520px) {
           .auth-card-body {
             padding: 2rem 1.4rem;
@@ -407,12 +436,6 @@ export default function LoginPage() {
                 </label>
                 <Link href="#" className="auth-forgot">Zapomniałeś hasła?</Link>
               </div>
-
-              {error && (
-                <p style={{ color: '#f87171', fontSize: '0.82rem', marginBottom: '0.75rem', fontFamily: 'Barlow, sans-serif' }}>
-                  {error}
-                </p>
-              )}
 
               <button type="submit" className="auth-btn" disabled={loading}>
                 {loading ? 'Logowanie…' : 'Zaloguj się'}

@@ -33,7 +33,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'root' | 'agent';
+  role: 'root' | 'admin' | 'agent';
   phone?: string;
   avatarUrl?: string;
   bio?: string;
@@ -67,4 +67,20 @@ export interface CreateCarInput {
   features?: string[];
   images?: string[];
   agent_id?: string;
+}
+
+export interface Reservation {
+  id: string;
+  user_id: string;
+  car_id: string;
+  start_date: string;
+  end_date: string;
+  total_price: number;
+  status: 'aktywna' | 'zakonczona' | 'anulowana';
+  pickup_location?: string;
+  return_location?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  car?: Car;
 }

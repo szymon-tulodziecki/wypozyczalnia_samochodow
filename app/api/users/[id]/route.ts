@@ -50,7 +50,8 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    console.error('Delete user failed:', err);
+    return NextResponse.json({ error: 'Wystąpił błąd serwera.' }, { status: 500 });
   }
 }
 
@@ -98,6 +99,7 @@ export async function PATCH(
 
     return NextResponse.json({ user: data });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    console.error('Update user failed:', err);
+    return NextResponse.json({ error: 'Wystąpił błąd serwera.' }, { status: 500 });
   }
 }

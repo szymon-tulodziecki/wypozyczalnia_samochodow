@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+'use client';
+
+import { useEffect, useState } from 'react';
 
 export interface AuthSession {
   id: string;
@@ -7,40 +9,37 @@ export interface AuthSession {
   lastName: string;
 }
 
+const SESSION_KEY = 'motion_drive_session';
+
 export function useAuth() {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize session from sessionStorage
   useEffect(() => {
     try {
-      const stored = sessionStorage.getItem('auth_session');
+      const stored = localStorage.getItem(SESSION_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
         setSession(parsed);
       }
-    } catch (error) {
-      console.error('Failed to load session:', error);
+    } catch (err) {
+      console.error('Failed to load session:', err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const login = useCallback((data: AuthSession) => {
-    setSession(data);
-    sessionStorage.setItem('auth_session', JSON.stringify(data));
-  }, []);
-
-  const logout = useCallback(() => {
-    setSession(null);
-    sessionStorage.removeItem('auth_session');
-  }, []);
-
-  return {
-    session,
-    isAuthenticated: !!session,
-    loading,
-    login,
-    logout,
+  const login = (sessionData: AuthSession) => {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+    setSession(sessionData);
   };
+
+  const logout = () => {
+    localStorage.removeItem(SESSION_KEY);
+    setSession(null);
+  };
+
+  const isAuthenticated = session !== null;
+
+  return { session, isAuthenticated, loading, login, logout };
 }

@@ -27,7 +27,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         return;
       }
       authAPI.getProfile()
-        .then(setUser)
+        .then(profile => {
+          if (profile.isPublic === false) {
+            router.replace('/konto');
+            return;
+          }
+          setUser(profile);
+        })
         .catch(() => router.replace('/admin'))
         .finally(() => setLoading(false));
     });

@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Hasło musi mieć co najmniej 8 znaków.' }, { status: 400 });
     }
 
-    // Check if email already exists
     const { data: emailMatch, error: emailCheckError } = await supabaseAdmin
       .from('profiles')
       .select('id')
@@ -48,7 +47,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Podany adres e-mail jest już zarejestrowany.' }, { status: 409 });
     }
 
-    // Check if phone already exists (if provided)
     if (phone) {
       const { data: phoneMatch, error: phoneCheckError } = await supabaseAdmin
         .from('profiles')
@@ -61,14 +59,10 @@ export async function POST(request: NextRequest) {
       }
 
       if ((phoneMatch ?? []).length > 0) {
-        return NextResponse.json(
-          { error: 'Podany numer telefonu jest już przypisany do innego konta.' },
-          { status: 409 }
-        );
+        return NextResponse.json({ error: 'Podany numer telefonu jest już przypisany do innego konta.' }, { status: 409 });
       }
     }
 
-    // Create auth user
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
@@ -76,7 +70,7 @@ export async function POST(request: NextRequest) {
       user_metadata: {
         first_name: firstName,
         last_name: lastName,
-        role: 'customer',
+        role: 'agent',
       },
     });
 
@@ -89,7 +83,6 @@ export async function POST(request: NextRequest) {
 
     const userId = authData.user.id;
 
-    // Create profile
     const { error: profileError } = await supabaseAdmin
       .from('profiles')
       .upsert({
@@ -98,7 +91,7 @@ export async function POST(request: NextRequest) {
         last_name: lastName,
         email,
         phone: phone || null,
-        role: 'customer',
+        role: 'agent',
         is_public: false,
         created_by: userId,
         updated_at: new Date().toISOString(),
@@ -109,14 +102,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: profileError.message }, { status: 400 });
     }
 
-    return NextResponse.json(
-      { message: 'Konto zostało utworzone. Za chwilę przeniesiemy Cię do logowania.' },
-      { status: 201 }
-    );
+    return NextResponse.json({ message: 'Konto zostało utworzone. Za chwilę przeniesiemy Cię do logowania.' }, { status: 201 });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Wystąpił nieoczekiwany błąd.' },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

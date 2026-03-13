@@ -30,6 +30,7 @@ export default function LoginPage() {
       await authAPI.login(email, password);
       const profile = await authAPI.getProfile();
       
+      // Zapisz sesję z minimum danych prywatnych
       storeSession({
         id: profile.id,
         email: profile.email,
@@ -37,7 +38,7 @@ export default function LoginPage() {
         lastName: profile.lastName,
       });
       
-      router.push('/admin');
+      router.push('/konto');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Błąd logowania');
     } finally {
@@ -372,8 +373,11 @@ export default function LoginPage() {
             <p className="auth-subtitle">Zaloguj się do swojego konta</p>
 
             <form onSubmit={handleSubmit}>
-              {successMessage && <div className="auth-alert success">{successMessage}</div>}
-              {error && <div className="auth-alert error">{error}</div>}
+              {successMessage && (
+                <p style={{ color: '#86efac', fontSize: '0.82rem', marginBottom: '0.75rem', fontFamily: 'Barlow, sans-serif' }}>
+                  {successMessage}
+                </p>
+              )}
 
               <div className="auth-field">
                 <label className="auth-label" htmlFor="email">Adres e-mail</label>

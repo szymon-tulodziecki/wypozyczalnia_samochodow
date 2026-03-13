@@ -12,15 +12,15 @@ function getUserIdFromJwt(token: string): string | null {
   }
 }
 
-async function getCaller(request: NextRequest): Promise<{ id: string; role: string } | null> {
+async function getCaller(request: NextRequest): Promise<{ id: string; role: string; isPublic: boolean } | null> {
   const token = request.headers.get('Authorization')?.replace('Bearer ', '');
   if (!token) return null;
   const userId = getUserIdFromJwt(token);
   if (!userId) return null;
-  const { data } = await supabaseAdmin.from('profiles').select('role').eq('id', userId).single();
+  const { data } = await supabaseAdmin.from('profiles').select('role, is_public').eq('id', userId).single();
   if (!data) return null;
-  const role = (data as { role: string }).role;
-  return { id: userId, role };
+  const profile = data as { role: string; is_public?: boolean | null };
+  return { id: userId, role: profile.role, isPublic: profile.is_public !== false };
 }
 
 export async function PATCH(
@@ -30,6 +30,7 @@ export async function PATCH(
   try {
     const caller = await getCaller(request);
     if (!caller) return NextResponse.json({ error: 'Nieautoryzowany' }, { status: 401 });
+    if (!caller.isPublic) return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
 
     const { id } = await params;
 
@@ -54,7 +55,8 @@ export async function PATCH(
 
     return NextResponse.json({ car: data });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    console.error('Update car failed:', err);
+    return NextResponse.json({ error: 'Wystąpił błąd serwera.' }, { status: 500 });
   }
 }
 
@@ -65,6 +67,7 @@ export async function DELETE(
   try {
     const caller = await getCaller(request);
     if (!caller) return NextResponse.json({ error: 'Nieautoryzowany' }, { status: 401 });
+    if (!caller.isPublic) return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
 
     const { id } = await params;
 
@@ -83,6 +86,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    console.error('Delete car failed:', err);
+    return NextResponse.json({ error: 'Wystąpił błąd serwera.' }, { status: 500 });
   }
 }

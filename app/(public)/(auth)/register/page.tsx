@@ -347,33 +347,23 @@ export default function RegisterPage() {
           color: var(--text-muted); margin-top: 0.2rem;
         }
 
-        /* ── Alerts ── */
-        .auth-alert {
-          padding: 0.65rem 1rem;
-          margin-bottom: 0.8rem;
-          border-radius: 2px;
+        .auth-feedback {
+          margin-bottom: 0.75rem;
+          padding: 0.7rem 0.9rem;
+          border-radius: 6px;
           font-family: 'Barlow', sans-serif;
-          font-size: 0.82rem;
-          font-weight: 400;
-          border-left: 3px solid;
-          animation: slideIn 0.3s ease-out;
+          font-size: 0.78rem;
+          line-height: 1.45;
         }
-
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateY(-8px); }
-          to { opacity: 1; transform: translateY(0); }
+        .auth-feedback--error {
+          color: #fca5a5;
+          background: rgba(127, 29, 29, 0.24);
+          border: 1px solid rgba(248, 113, 113, 0.28);
         }
-
-        .auth-alert.error {
-          background: rgba(220, 53, 69, 0.1);
-          color: #ff6b6b;
-          border-color: #ff6b6b;
-        }
-
-        .auth-alert.success {
-          background: rgba(109, 191, 69, 0.1);
-          color: #51cf66;
-          border-color: #51cf66;
+        .auth-feedback--success {
+          color: #bbf7d0;
+          background: rgba(20, 83, 45, 0.24);
+          border: 1px solid rgba(74, 222, 128, 0.24);
         }
 
         /* ── Modal ── */
@@ -478,8 +468,8 @@ export default function RegisterPage() {
             <p className="auth-subtitle">Utwórz nowe konto w serwisie</p>
 
             <form onSubmit={handleSubmit}>
-              {error && <div className="auth-alert error">{error}</div>}
-              {success && <div className="auth-alert success">{success}</div>}
+              {error && <div className="auth-feedback auth-feedback--error">{error}</div>}
+              {success && <div className="auth-feedback auth-feedback--success">{success}</div>}
 
               <div className="auth-row">
                 <div className="auth-field">
@@ -565,7 +555,7 @@ export default function RegisterPage() {
               </label>
 
               <button type="submit" className="auth-btn" disabled={!agreed || loading}>
-                {loading ? 'Tworzenie konta...' : 'Utwórz konto'}
+                {loading ? 'Tworzenie konta…' : 'Utwórz konto'}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
                 </svg>

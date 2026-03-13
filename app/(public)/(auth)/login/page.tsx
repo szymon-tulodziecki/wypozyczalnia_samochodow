@@ -1,16 +1,26 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/lib/api';
+import { useAuth } from '@/lib/useAuth';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login: storeSession } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('registered') === '1') {
+      setSuccessMessage('Konto zostało utworzone. Możesz się teraz zalogować.');
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +28,15 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await authAPI.login(email, password);
+      const profile = await authAPI.getProfile();
+      
+      storeSession({
+        id: profile.id,
+        email: profile.email,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      });
+      
       router.push('/admin');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Błąd logowania');
@@ -303,6 +322,35 @@ export default function LoginPage() {
           color: var(--green);
         }
 
+        /* ── Alerts ── */
+        .auth-alert {
+          padding: 0.65rem 1rem;
+          margin-bottom: 0.8rem;
+          border-radius: 2px;
+          font-family: 'Barlow', sans-serif;
+          font-size: 0.82rem;
+          font-weight: 400;
+          border-left: 3px solid;
+          animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-alert.error {
+          background: rgba(220, 53, 69, 0.1);
+          color: #ff6b6b;
+          border-color: #ff6b6b;
+        }
+
+        .auth-alert.success {
+          background: rgba(109, 191, 69, 0.1);
+          color: #51cf66;
+          border-color: #51cf66;
+        }
+
         @media (max-width: 520px) {
           .auth-card-body {
             padding: 2rem 1.4rem;
@@ -324,6 +372,9 @@ export default function LoginPage() {
             <p className="auth-subtitle">Zaloguj się do swojego konta</p>
 
             <form onSubmit={handleSubmit}>
+              {successMessage && <div className="auth-alert success">{successMessage}</div>}
+              {error && <div className="auth-alert error">{error}</div>}
+
               <div className="auth-field">
                 <label className="auth-label" htmlFor="email">Adres e-mail</label>
                 <div className="auth-input-wrapper">
@@ -381,12 +432,6 @@ export default function LoginPage() {
                 </label>
                 <Link href="#" className="auth-forgot">Zapomniałeś hasła?</Link>
               </div>
-
-              {error && (
-                <p style={{ color: '#f87171', fontSize: '0.82rem', marginBottom: '0.75rem', fontFamily: 'Barlow, sans-serif' }}>
-                  {error}
-                </p>
-              )}
 
               <button type="submit" className="auth-btn" disabled={loading}>
                 {loading ? 'Logowanie…' : 'Zaloguj się'}

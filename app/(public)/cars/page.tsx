@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import FleetFilters, { type FuelType, type GearboxType, type SeatsOption } from "../../components/fleet/FleetFilters";
-import CarCard from "../../components/fleet/CarCard";
+import CarsFilters, { type FuelType, type GearboxType, type SeatsOption } from "../../components/cars_page/CarsFilters";
+import CarCard from "../../components/cars_page/CarCard";
 import { carsAPI } from "@/lib/api";
-import { MAX_PRICE, type Category } from "../../components/fleet/types";
-import type { Car } from "../../components/fleet/types";
+import { MAX_PRICE, type Category } from "../../components/cars_page/types";
+import type { Car } from "../../components/cars_page/types";
 
 const PAGE_SIZE = 6;
 type ViewMode = "grid" | "list";
@@ -421,7 +421,7 @@ export default function Samochody() {
 
           {/* Filters */}
           {!loading && (
-            <FleetFilters
+            <CarsFilters
               activeCategory={activeCategory}
               onCategoryChange={handleCategoryChange}
               maxPrice={maxPrice}

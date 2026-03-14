@@ -13,22 +13,52 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File | null;
     if (!file) return NextResponse.json({ error: 'Brak pliku' }, { status: 400 });
 
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      return NextResponse.json({ error: 'Plik musi być obrazem' }, { status: 400 });
+    }
+
     const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Validate buffer size (max 10MB)
+    if (buffer.length > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Plik jest zbyt duży' }, { status: 400 });
+    }
 
     const result = await new Promise<{ secure_url: string; public_id: string }>(
       (resolve, reject) => {
-        cloudinary.uploader
-          .upload_stream({ folder: 'cars', resource_type: 'image' }, (error, res) => {
-            if (error || !res) reject(error ?? new Error('Upload failed'));
-            else resolve(res as { secure_url: string; public_id: string });
-          })
-          .end(buffer);
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: 'cars', resource_type: 'image' },
+          (error, res) => {
+            if (error) {
+              console.error('[/api/upload] Cloudinary error:', error);
+              reject(error);
+            } else if (!res) {
+              const err = new Error('Cloudinary returned empty response');
+              console.error('[/api/upload] Error:', err);
+              reject(err);
+            } else {
+              resolve(res as { secure_url: string; public_id: string });
+            }
+          },
+        );
+
+        uploadStream.on('error', (err) => {
+          console.error('[/api/upload] Stream error:', err);
+          reject(err);
+        });
+
+        uploadStream.end(buffer);
       },
     );
 
     return NextResponse.json({ url: result.secure_url, publicId: result.public_id });
   } catch (err) {
-    console.error('[/api/upload] error:', JSON.stringify(err, null, 2));
-    return NextResponse.json({ error: 'Błąd przesyłania zdjęcia' }, { status: 500 });
+    console.error('[/api/upload] Catch error:', err);
+    const errorMessage = err instanceof Error ? err.message : 'Nieznany błąd';
+    return NextResponse.json(
+      { error: `Błąd przesyłania zdjęcia: ${errorMessage}` },
+      { status: 500 },
+    );
   }
 }

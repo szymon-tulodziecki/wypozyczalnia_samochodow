@@ -373,6 +373,7 @@ export default function LoginPage() {
             <p className="auth-subtitle">Zaloguj się do swojego konta</p>
 
             <form onSubmit={handleSubmit}>
+              {error && <div className="auth-alert error">{error}</div>}
               {successMessage && (
                 <p style={{ color: '#86efac', fontSize: '0.82rem', marginBottom: '0.75rem', fontFamily: 'Barlow, sans-serif' }}>
                   {successMessage}

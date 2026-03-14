@@ -1,12 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/useAuth';
 import { reservationsAPI, profileAPI } from '@/lib/api';
 import type { Reservation, User } from '@/types';
 
 type ReservationStatus = 'aktywna' | 'zakonczona' | 'anulowana';
+type ProfileFormData = {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  bio: string;
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -56,11 +62,7 @@ function ReservationsTab({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    loadReservations();
-  }, [userId]);
-
-  const loadReservations = async () => {
+  const loadReservations = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -73,7 +75,11 @@ function ReservationsTab({ userId }: { userId: string }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    void loadReservations();
+  }, [loadReservations]);
 
   const filtered = filter === 'wszystkie' ? reservations : reservations.filter(r => r.status === filter);
 
@@ -260,9 +266,9 @@ function ReservationsTab({ userId }: { userId: string }) {
 // ─── Profile Tab ──────────────────────────────────────────────────────────────
 
 function ProfileTab({ userId }: { userId: string }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState<any>(null);
+  const [formData, setFormData] = useState<ProfileFormData | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -272,11 +278,7 @@ function ProfileTab({ userId }: { userId: string }) {
   const [pwError, setPwError] = useState('');
   const [pwSuccess, setPwSuccess] = useState(false);
 
-  useEffect(() => {
-    loadProfile();
-  }, [userId]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       setLoading(true);
       const data = await profileAPI.getFullProfile(userId);
@@ -292,10 +294,15 @@ function ProfileTab({ userId }: { userId: string }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
+
+  useEffect(() => {
+    void loadProfile();
+  }, [loadProfile]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData) return;
     try {
       setSaveLoading(true);
       const updated = await profileAPI.updateProfile(userId, formData);
@@ -363,7 +370,18 @@ function ProfileTab({ userId }: { userId: string }) {
         <div className="section-title-row">
           <h3 className="section-title">Dane osobowe</h3>
           {!editMode && (
-            <button className="btn-edit" onClick={() => { setFormData({...user}); setEditMode(true); }}>
+            <button
+              className="btn-edit"
+              onClick={() => {
+                setFormData({
+                  firstName: user.firstName,
+                  lastName: user.lastName,
+                  phone: user.phone || '',
+                  bio: user.bio || '',
+                });
+                setEditMode(true);
+              }}
+            >
               Edytuj
             </button>
           )}
@@ -381,7 +399,7 @@ function ProfileTab({ userId }: { userId: string }) {
                 <input
                   className="form-input"
                   value={formData.firstName || ''}
-                  onChange={e => setFormData((p: any) => ({ ...p, firstName: e.target.value }))}
+                    onChange={e => setFormData((p) => (p ? { ...p, firstName: e.target.value } : p))}
                   required
                 />
               </div>
@@ -390,7 +408,7 @@ function ProfileTab({ userId }: { userId: string }) {
                 <input
                   className="form-input"
                   value={formData.lastName || ''}
-                  onChange={e => setFormData((p: any) => ({ ...p, lastName: e.target.value }))}
+                    onChange={e => setFormData((p) => (p ? { ...p, lastName: e.target.value } : p))}
                   required
                 />
               </div>
@@ -410,7 +428,7 @@ function ProfileTab({ userId }: { userId: string }) {
                 <input
                   className="form-input"
                   value={formData.phone || ''}
-                  onChange={e => setFormData((p: any) => ({ ...p, phone: e.target.value }))}
+                  onChange={e => setFormData((p) => (p ? { ...p, phone: e.target.value } : p))}
                 />
               </div>
             </div>
@@ -419,7 +437,7 @@ function ProfileTab({ userId }: { userId: string }) {
               <input
                 className="form-input"
                 value={formData.bio || ''}
-                onChange={e => setFormData((p: any) => ({ ...p, bio: e.target.value }))}
+                onChange={e => setFormData((p) => (p ? { ...p, bio: e.target.value } : p))}
               />
             </div>
             <div className="form-button-row">

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { CATEGORIES, type Category } from './cars_page/types';
 
 const navLinks = [
   { href: '/', label: 'Strona Główna' },
@@ -42,6 +43,21 @@ const socialLinks = [
     ),
   },
 ];
+
+const categoryLabels: Record<Exclude<Category, 'Wszystkie'>, string> = {
+  ekonomiczny: 'Ekonomiczne',
+  komfort: 'Komfort',
+  premium: 'Premium',
+  SUV: 'SUV-y',
+  van: 'Vany',
+};
+
+const fleetLinks = CATEGORIES
+  .filter((category): category is Exclude<Category, 'Wszystkie'> => category !== 'Wszystkie')
+  .map((category) => ({
+    href: `/cars?typ=${encodeURIComponent(category)}`,
+    label: categoryLabels[category],
+  }));
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -572,10 +588,9 @@ export default function Footer() {
           <div className="md-footer-col">
             <h4>Nasza Flota</h4>
             <ul className="md-footer-nav">
-              <li><Link href="/cars?typ=sedan">Sedany</Link></li>
-              <li><Link href="/cars?typ=suv">SUV-y</Link></li>
-              <li><Link href="/cars?typ=van">Vany</Link></li>
-              <li><Link href="/cars?typ=premium">Premium</Link></li>
+              {fleetLinks.map(({ href, label }) => (
+                <li key={href}><Link href={href}>{label}</Link></li>
+              ))}
             </ul>
           </div>
 

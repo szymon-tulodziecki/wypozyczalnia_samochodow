@@ -20,7 +20,7 @@ const authNavLinks = [
 
 export default function Header() {
   const router = useRouter();
-  const { isAuthenticated, session, logout, loading } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('/');

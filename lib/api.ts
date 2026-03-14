@@ -248,6 +248,20 @@ export const usersAPI = {
 // ─── Reservations ────────────────────────────────────────────────────────────
 
 export const reservationsAPI = {
+  getAll: async (): Promise<Reservation[]> => {
+    const { data, error } = await supabase
+      .from('reservations')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      if (isMissingReservationsRelation(error)) return [];
+      throw toError(error, 'Nie udało się pobrać wypożyczeń');
+    }
+
+    return (data || []) as Reservation[];
+  },
+
   getUserReservations: async (userId: string): Promise<Reservation[]> => {
     const { data, error } = await supabase
       .from('reservations')
@@ -270,6 +284,15 @@ export const reservationsAPI = {
       .eq('id', reservationId);
     
     if (error) throw toError(error, 'Nie udało się anulować rezerwacji');
+  },
+
+  updateStatus: async (reservationId: string, status: Reservation['status']): Promise<void> => {
+    const { error } = await supabase
+      .from('reservations')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', reservationId);
+
+    if (error) throw toError(error, 'Nie udało się zaktualizować statusu wypożyczenia');
   },
 };
 

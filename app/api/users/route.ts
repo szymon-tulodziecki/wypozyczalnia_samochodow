@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
+function getProfileRoleErrorMessage(message: string) {
+  const lower = message.toLowerCase();
+  if (lower.includes('profiles_role_check')) {
+    return 'Baza danych nadal ma stary constraint dla pola roli. Zaktualizuj constraint `profiles_role_check`, aby akceptował role `user` i `root`.';
+  }
+  return message;
+}
+
 function getUserIdFromJwt(token: string): string | null {
   try {
     const parts = token.split('.');
@@ -31,10 +39,21 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, firstName, lastName, role, phone, isPublic } = body;
 
+    if (role !== 'user' && role !== 'root') {
+      return NextResponse.json({ error: 'Nieprawidłowa rola użytkownika.' }, { status: 400 });
+    }
+
     const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
+      user_metadata: {
+        first_name: firstName,
+        last_name: lastName,
+        role,
+        phone: phone || null,
+        is_public: isPublic ?? true,
+      },
     });
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
@@ -55,7 +74,7 @@ export async function POST(request: NextRequest) {
     if (profileError) {
       // Roll back auth user if profile creation fails
       await supabaseAdmin.auth.admin.deleteUser(data.user.id);
-      return NextResponse.json({ error: profileError.message }, { status: 400 });
+      return NextResponse.json({ error: getProfileRoleErrorMessage(profileError.message) }, { status: 400 });
     }
 
     return NextResponse.json({ user: profile }, { status: 201 });

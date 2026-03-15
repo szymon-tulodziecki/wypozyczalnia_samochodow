@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { carsAPI, usersAPI, authAPI } from '@/lib/api';
-import { Car, TrendingUp, CheckCircle, UserCog, UserPlus, Eye, Wrench } from 'lucide-react';
+import { Car, TrendingUp, CheckCircle, UserCog, UserPlus, Eye, Wrench, CalendarDays, ExternalLink } from 'lucide-react';
 import type { Car as CarType, User } from '@/types';
 
 const STATUS_CLS: Record<string, string> = {
@@ -16,10 +16,9 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [stats, setStats] = useState({ total: 0, available: 0, rented: 0, service: 0, agents: 0 });
+  const [stats, setStats] = useState({ total: 0, available: 0, rented: 0, service: 0, users: 0 });
   const [recent, setRecent] = useState<CarType[]>([]);
   const [loading, setLoading] = useState(true);
-  const isAdmin = user?.role === 'root';
 
   useEffect(() => { authAPI.getProfile().then(setUser).catch(() => {}); }, []);
 
@@ -27,20 +26,19 @@ export default function DashboardPage() {
     if (!user) return;
     (async () => {
       try {
-        let cars = await carsAPI.getAll();
-        if (!isAdmin) cars = cars.filter(c => c.agent?.id === user.id);
-        const agents = isAdmin ? (await usersAPI.getAgents()).length : 0;
+        const cars = await carsAPI.getAll();
+        const users = (await usersAPI.getRegularUsers()).length;
         setStats({
           total: cars.length,
           available: cars.filter(c => c.status === 'dostepny').length,
           rented:    cars.filter(c => c.status === 'wynajety').length,
           service:   cars.filter(c => c.status === 'serwis').length,
-          agents,
+          users,
         });
         setRecent(cars.slice(0, 6));
       } finally { setLoading(false); }
     })();
-  }, [user, isAdmin]);
+  }, [user]);
 
   const pln = (n: number) => new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(n);
 
@@ -51,11 +49,11 @@ export default function DashboardPage() {
   );
 
   const statCards = [
-    { label: isAdmin ? 'Wszystkie auta' : 'Moje auta', value: stats.total,     icon: Car,      bg: 'bg-blue-50',   icon_cls: 'text-blue-600'  },
+    { label: 'Wszystkie auta',                         value: stats.total,     icon: Car,      bg: 'bg-blue-50',   icon_cls: 'text-blue-600'  },
     { label: 'Dostępne',                               value: stats.available,  icon: TrendingUp,bg: 'bg-green-50',  icon_cls: 'text-green-600' },
     { label: 'Wynajęte',                               value: stats.rented,     icon: CheckCircle,bg:'bg-indigo-50', icon_cls: 'text-indigo-600'},
     { label: 'Serwis',                                 value: stats.service,    icon: Wrench,   bg: 'bg-amber-50',  icon_cls: 'text-amber-600' },
-    ...(isAdmin ? [{ label: 'Pracownicy', value: stats.agents, icon: UserCog, bg: 'bg-purple-50', icon_cls: 'text-purple-600' }] : []),
+    { label: 'Użytkownicy',                            value: stats.users,      icon: UserCog,  bg: 'bg-purple-50', icon_cls: 'text-purple-600' },
   ];
 
   return (
@@ -84,7 +82,7 @@ export default function DashboardPage() {
       {/* Quick actions */}
       <div>
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Szybkie akcje</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
           <Link href="/admin/cars/create"
             className="bg-white border border-gray-200 hover:border-blue-400 hover:bg-blue-50/50 rounded-xl p-4 flex items-center gap-3 transition-colors group">
             <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
@@ -95,18 +93,16 @@ export default function DashboardPage() {
               <p className="font-semibold text-gray-800 text-sm">Dodaj samochód</p>
             </div>
           </Link>
-          {isAdmin && (
-            <Link href="/admin/users/create"
-              className="bg-white border border-gray-200 hover:border-green-400 hover:bg-green-50/50 rounded-xl p-4 flex items-center gap-3 transition-colors group">
-              <div className="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                <UserPlus className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-xs text-gray-400">Szybka akcja</p>
-                <p className="font-semibold text-gray-800 text-sm">Dodaj pracownika</p>
-              </div>
-            </Link>
-          )}
+          <Link href="/admin/users/create"
+            className="bg-white border border-gray-200 hover:border-green-400 hover:bg-green-50/50 rounded-xl p-4 flex items-center gap-3 transition-colors group">
+            <div className="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+              <UserPlus className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">Szybka akcja</p>
+              <p className="font-semibold text-gray-800 text-sm">Dodaj użytkownika</p>
+            </div>
+          </Link>
           <Link href="/admin/cars"
             className="bg-white border border-gray-200 hover:border-purple-400 hover:bg-purple-50/50 rounded-xl p-4 flex items-center gap-3 transition-colors group">
             <div className="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
@@ -115,6 +111,26 @@ export default function DashboardPage() {
             <div>
               <p className="text-xs text-gray-400">Szybka akcja</p>
               <p className="font-semibold text-gray-800 text-sm">Lista samochodów</p>
+            </div>
+          </Link>
+          <Link href="/admin/reservations"
+            className="bg-white border border-gray-200 hover:border-amber-400 hover:bg-amber-50/50 rounded-xl p-4 flex items-center gap-3 transition-colors group">
+            <div className="w-9 h-9 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-amber-200 transition-colors">
+              <CalendarDays className="w-5 h-5 text-amber-600" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">Szybka akcja</p>
+              <p className="font-semibold text-gray-800 text-sm">Przegląd rezerwacji</p>
+            </div>
+          </Link>
+          <Link href="/"
+            className="bg-white border border-gray-200 hover:border-gray-400 hover:bg-gray-50 rounded-xl p-4 flex items-center gap-3 transition-colors group">
+            <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+              <ExternalLink className="w-5 h-5 text-gray-700" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-400">Nawigacja</p>
+              <p className="font-semibold text-gray-800 text-sm">Przejdź do strony głównej</p>
             </div>
           </Link>
         </div>

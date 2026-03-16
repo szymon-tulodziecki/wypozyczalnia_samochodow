@@ -36,7 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       authAPI.getProfile()
         .then(profile => {
           if (profile.role !== 'root') {
-            router.replace('/konto');
+            router.replace('/account');
             return;
           }
           setUser(profile);

@@ -267,7 +267,7 @@ export default function ReserveCarPage() {
       setSuccess('Rezerwacja została zapisana. Znajdziesz ją na swoim koncie.');
 
       window.setTimeout(() => {
-        router.push('/konto');
+        router.push('/account');
       }, 1400);
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : 'Nie udało się utworzyć rezerwacji.');

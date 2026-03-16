@@ -209,7 +209,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       authAPI.getProfile()
         .then(profile => {
-          if (profile.role !== 'root') {
+          if (profile.role !== 'root' && profile.role !== 'agent') {
             router.replace('/konto');
             return;
           }

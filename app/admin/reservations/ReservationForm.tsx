@@ -51,7 +51,7 @@ export function ReservationForm({
     Promise.all([carsAPI.getAll(), usersAPI.getAll()])
       .then(([carsData, usersData]) => {
         setCars(carsData);
-        setUsers(usersData.filter(user => user.role === 'agent'));
+        setUsers(usersData.filter(user => user.role === 'klient'));
       })
       .catch(() => setError('Nie udało się załadować listy aut lub użytkowników.'))
       .finally(() => setBootLoading(false));

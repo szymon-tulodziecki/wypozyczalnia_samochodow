@@ -40,7 +40,7 @@ function mapProfile(row: Record<string, unknown>): User {
     firstName: (row.first_name as string) || '',
     lastName: (row.last_name as string) || '',
     email: (row.email as string) || '',
-    role: (row.role as User['role']) || 'agent',
+    role: (row.role as User['role']) || 'klient',
     phone: row.phone as string | undefined,
     avatarUrl: row.avatar_url as string | undefined,
     bio: row.bio as string | undefined,
@@ -180,7 +180,7 @@ export const usersAPI = {
   },
 
   getRegularUsers: async (): Promise<User[]> => {
-    const { data, error } = await supabase.from('profiles').select('*').eq('role', 'agent').order('first_name');
+    const { data, error } = await supabase.from('profiles').select('*').in('role', ['klient', 'agent']).order('first_name');
     if (error) throw error;
     return (data || []).map(r => mapProfile(r as Record<string, unknown>));
   },

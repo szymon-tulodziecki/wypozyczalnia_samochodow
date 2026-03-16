@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { carsAPI, usersAPI, authAPI } from '@/lib/api';
@@ -46,7 +46,7 @@ export default function CreateCarPage() {
 
   useEffect(() => {
     if (!currentUser) return;
-    usersAPI.getRegularUsers().then(setAssignableUsers).catch(() => {});
+    usersAPI.getRegularUsers().then(users => setAssignableUsers(users.filter(u => u.role === 'agent'))).catch(() => {});
   }, [currentUser]);
 
   const set = (k: keyof typeof form, v: string | number) => setForm(f => ({ ...f, [k]: v }));

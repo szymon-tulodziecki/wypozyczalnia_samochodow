@@ -7,7 +7,7 @@ export interface AuthSession {
   email: string;
   firstName: string;
   lastName: string;
-  role?: 'root' | 'agent';
+  role?: 'root' | 'agent' | 'klient';
 }
 
 const SESSION_KEY = 'motion_drive_session';

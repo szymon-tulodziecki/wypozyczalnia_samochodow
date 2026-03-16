@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
@@ -63,7 +63,7 @@ export default function EditCarPage() {
           license_plate: car.license_plate ?? '', description: car.description ?? '',
           features: (car.features ?? []).join(', '), agent_id: car.agent_id ?? '',
         });
-        usersAPI.getRegularUsers().then(setAssignableUsers).catch(() => {});
+        usersAPI.getRegularUsers().then(users => setAssignableUsers(users.filter(u => u.role === 'agent'))).catch(() => {});
       })
       .catch(() => setError('Nie udało się załadować danych.'))
       .finally(() => setLoading(false));

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usersAPI, authAPI } from '@/lib/api';
@@ -7,10 +7,11 @@ import { Plus, Search, Eye, Pencil, Trash2, Crown, UserIcon, Loader2 } from 'luc
 
 const ROLE_CLS: Record<string, string> = {
   root:  'bg-amber-100 text-amber-700',
-  user: 'bg-green-100 text-green-700',
+  agent: 'bg-blue-100 text-blue-700',
+  klient: 'bg-green-100 text-green-700',
 };
-const ROLE_LABEL: Record<string, string> = { root: 'Root', user: 'Użytkownik' };
-const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { root: Crown, user: UserIcon };
+const ROLE_LABEL: Record<string, string> = { root: 'Root', agent: 'Agent', klient: 'Klient' };
+const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { root: Crown, agent: UserIcon, klient: UserIcon };
 
 export default function UsersPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -96,7 +97,8 @@ export default function UsersPage() {
           className="bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="">Wszystkie role</option>
           <option value="root">Root</option>
-          <option value="user">Użytkownik</option>
+          <option value="agent">Agent</option>
+          <option value="klient">Klient</option>
         </select>
       </div>
 

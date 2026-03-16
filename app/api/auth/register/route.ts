@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
       user_metadata: {
         first_name: firstName,
         last_name: lastName,
-        role: 'agent',
+        role: 'klient',
       },
     });
 
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
         last_name: lastName,
         email,
         phone: phone || null,
-        role: 'agent',
+        role: 'klient',
         is_public: false,
         created_by: userId,
         updated_at: new Date().toISOString(),

@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, firstName, lastName, role, phone, isPublic } = body;
 
-    if (role !== 'agent' && role !== 'root') {
+    if (role !== 'agent' && role !== 'klient' && role !== 'root') {
       return NextResponse.json({ error: 'Nieprawidłowa rola użytkownika.' }, { status: 400 });
     }
 

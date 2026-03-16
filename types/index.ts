@@ -33,7 +33,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'root' | 'agent';
+  role: 'root' | 'agent' | 'klient';
   phone?: string;
   avatarUrl?: string;
   bio?: string;

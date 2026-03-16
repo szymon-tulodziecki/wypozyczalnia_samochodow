@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -8,10 +8,11 @@ import { ArrowLeft, Pencil, Crown, UserIcon, Mail, Phone, Loader2 } from 'lucide
 
 const ROLE_CLS: Record<string, string> = {
   root:  'bg-amber-100 text-amber-700',
-  user: 'bg-green-100 text-green-700',
+  agent: 'bg-blue-100 text-blue-700',
+  klient: 'bg-green-100 text-green-700',
 };
-const ROLE_LABEL: Record<string, string> = { root: 'Root', user: 'Użytkownik' };
-const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { root: Crown, user: UserIcon };
+const ROLE_LABEL: Record<string, string> = { root: 'Root', agent: 'Agent', klient: 'Klient' };
+const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { root: Crown, agent: UserIcon, klient: UserIcon };
 
 export default function ViewUserPage() {
   const router = useRouter();

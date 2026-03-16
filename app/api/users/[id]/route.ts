@@ -105,7 +105,7 @@ export async function PATCH(
       role?: string;
     };
 
-    if (body.role !== undefined && body.role !== 'agent' && body.role !== 'root') {
+    if (body.role !== undefined && body.role !== 'agent' && body.role !== 'klient' && body.role !== 'root') {
       return NextResponse.json({ error: 'Nieprawidłowa rola użytkownika.' }, { status: 400 });
     }
 

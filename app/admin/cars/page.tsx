@@ -18,6 +18,11 @@ export default function CarsPage() {
   const router = useRouter();
   const [cars, setCars] = useState<Car[]>([]);
   const [search, setSearch] = useState('');
+  const [activeCategory, setActiveCategory] = useState<Category>('Wszystkie');
+  const [maxPrice, setMaxPrice] = useState(16000);
+  const [fuelType, setFuelType] = useState<FuelType>('Wszystkie');
+  const [gearbox, setGearbox] = useState<GearboxType>('Wszystkie');
+  const [seats, setSeats] = useState<SeatsOption>('Wszystkie');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -30,6 +35,21 @@ export default function CarsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (cars.length === 0) return;
+    const dynamicMax = Math.max(...cars.map(c => c.price_per_day), 1000);
+    setMaxPrice(Math.ceil(dynamicMax / 100) * 100);
+  }, [cars]);
+
+  useEffect(() => {
+    if (!previewImage) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPreviewImage(null);
+    };
+    window.addEventListener('keydown', onEsc);
+    return () => window.removeEventListener('keydown', onEsc);
+  }, [previewImage]);
+
   const handleDelete = async (id: string) => {
     setConfirmId(null);
     setDeletingId(id);
@@ -40,10 +60,34 @@ export default function CarsPage() {
     finally { setDeletingId(null); }
   };
 
-  const filtered = cars.filter(c =>
-    `${c.brand} ${c.model}`.toLowerCase().includes(search.toLowerCase()) ||
-    (c.license_plate ?? '').toLowerCase().includes(search.toLowerCase())
-  );
+  const handleResetFilters = () => {
+    setSearch('');
+    setActiveCategory('Wszystkie');
+    setFuelType('Wszystkie');
+    setGearbox('Wszystkie');
+    setSeats('Wszystkie');
+    const dynamicMax = Math.max(...cars.map(c => c.price_per_day), 1000);
+    setMaxPrice(Math.ceil(dynamicMax / 100) * 100);
+  };
+
+  const filtered = cars.filter(c => {
+    const bySearch =
+      `${c.brand} ${c.model}`.toLowerCase().includes(search.toLowerCase()) ||
+      (c.license_plate ?? '').toLowerCase().includes(search.toLowerCase());
+    if (!bySearch) return false;
+    if (activeCategory !== 'Wszystkie' && c.category !== activeCategory) return false;
+    if (c.price_per_day > maxPrice) return false;
+    if (fuelType !== 'Wszystkie' && c.fuel_type !== fuelType) return false;
+    if (gearbox !== 'Wszystkie' && c.gearbox !== gearbox) return false;
+    if (seats !== 'Wszystkie') {
+      const n = c.seats ?? 5;
+      if (seats === '7+' && n < 7) return false;
+      if (seats !== '7+' && n !== Number(seats)) return false;
+    }
+    return true;
+  });
+
+  const maxPriceLimit = Math.max(...cars.map(c => c.price_per_day), 1000);
 
   if (loading) return (
     <div className="flex justify-center py-20">
@@ -83,6 +127,106 @@ export default function CarsPage() {
         />
       </div>
 
+      {/* CRM Filters */}
+      <div className="bg-white border border-gray-200 rounded-xl p-4 sm:p-5 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-1.5">
+            {(['Wszystkie', 'ekonomiczny', 'komfort', 'premium', 'SUV', 'van'] as const).map((cat) => {
+              const active = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
+                    active
+                      ? 'bg-blue-50 border-blue-300 text-blue-700 font-medium'
+                      : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+          <span className="text-xs tracking-wide uppercase text-gray-500">
+            Wynik: <strong className="text-gray-700">{filtered.length}</strong> / {cars.length}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="space-y-2 lg:col-span-1">
+            <div className="flex items-center justify-between">
+              <label className="text-xs uppercase tracking-wide text-gray-500">Maks. cena / dobę</label>
+              <span className="text-sm font-semibold text-gray-800">{maxPrice.toLocaleString('pl-PL')} zł</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={maxPriceLimit}
+              step={100}
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(Number(e.target.value))}
+              className="w-full accent-blue-600"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs uppercase tracking-wide text-gray-500">Paliwo</label>
+            <select
+              value={fuelType}
+              onChange={(e) => setFuelType(e.target.value as FuelType)}
+              className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 outline-none focus:border-blue-400"
+            >
+              <option value="Wszystkie">Wszystkie</option>
+              <option value="benzyna">Benzyna</option>
+              <option value="diesel">Diesel</option>
+              <option value="elektryczny">Elektryczny</option>
+              <option value="hybryda">Hybryda</option>
+              <option value="LPG">LPG</option>
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs uppercase tracking-wide text-gray-500">Skrzynia biegów</label>
+            <select
+              value={gearbox}
+              onChange={(e) => setGearbox(e.target.value as GearboxType)}
+              className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 outline-none focus:border-blue-400"
+            >
+              <option value="Wszystkie">Wszystkie</option>
+              <option value="manualna">Manualna</option>
+              <option value="automatyczna">Automatyczna</option>
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs uppercase tracking-wide text-gray-500">Liczba miejsc</label>
+            <select
+              value={seats}
+              onChange={(e) => setSeats(e.target.value as SeatsOption)}
+              className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-700 outline-none focus:border-blue-400"
+            >
+              <option value="Wszystkie">Wszystkie</option>
+              <option value="2">2</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="7+">7+</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="px-3 py-1.5 text-xs rounded-full border border-gray-300 text-gray-600 hover:bg-gray-50"
+          >
+            Wyczyść filtry
+          </button>
+        </div>
+      </div>
+
       {/* Table */}
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
         {filtered.length === 0 ? (
@@ -110,9 +254,14 @@ export default function CarsPage() {
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         {car.images?.[0] ? (
-                          <div className="relative w-12 h-8 rounded-lg overflow-hidden shrink-0 border border-gray-100">
+                          <button
+                            type="button"
+                            onClick={() => setPreviewImage({ src: car.images[0], alt: `${car.brand} ${car.model}` })}
+                            className="relative w-12 h-8 rounded-lg overflow-hidden shrink-0 border border-gray-100 hover:border-blue-300 transition-colors"
+                            title="Powiększ zdjęcie"
+                          >
                             <Image src={car.images[0]} alt="" fill unoptimized sizes="48px" className="object-cover" />
-                          </div>
+                          </button>
                         ) : (
                           <div className="w-12 h-8 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
                             <CarIcon className="w-4 h-4 text-gray-400" />
@@ -173,6 +322,34 @@ export default function CarsPage() {
           </div>
         )}
       </div>
+
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="relative w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setPreviewImage(null)}
+              className="absolute -top-10 right-0 text-white/80 hover:text-white"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <div className="relative w-full aspect-16/10 rounded-xl overflow-hidden border border-white/20 bg-black">
+              <Image
+                src={previewImage.src}
+                alt={previewImage.alt}
+                fill
+                unoptimized
+                sizes="90vw"
+                className="object-contain"
+              />
+            </div>
+            <p className="text-center text-white/80 text-sm mt-3">{previewImage.alt}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

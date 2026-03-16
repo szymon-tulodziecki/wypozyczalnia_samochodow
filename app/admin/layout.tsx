@@ -14,6 +14,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showIdleWarning, setShowIdleWarning] = useState(false);
+  const [idleSecondsLeft, setIdleSecondsLeft] = useState(0);
+
+  const defaultTitleRef = useRef('');
+  const warningTimerRef = useRef<number | null>(null);
+  const logoutTimerRef = useRef<number | null>(null);
+  const countdownTickRef = useRef<number | null>(null);
+  const titleTickCounterRef = useRef(0);
+  const showIdleWarningRef = useRef(false);
+  const idleSecondsRef = useRef(0);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -44,6 +55,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [router]);
 
   const handleLogout = async () => {
+    clearIdleTimers();
+    cancelScheduledLogout();
     await supabase.auth.signOut();
     router.replace('/login');
   };
@@ -67,27 +80,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!user) return null;
 
-  const Sidebar = ({ mobile = false }: { mobile?: boolean }) => (
-    <div className={`flex flex-col h-full bg-gray-900 ${mobile ? 'w-64' : 'w-64'}`}>
-      <div className="flex items-center justify-between h-16 px-4 border-b border-gray-800">
-        <span className="text-white font-bold text-lg">AutoRent Admin</span>
-        {mobile && (
-          <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
-            <X className="w-5 h-5" />
-          </button>
-        )}
-      </div>
-      <nav className="flex-1 px-3 py-4 space-y-1">
-        {nav.map(item => {
-          const active = pathname === item.href || pathname.startsWith(item.href + '/');
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setSidebarOpen(false)}
-              className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                active ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-              }`}
+  return (
+    <div className="min-h-screen bg-gray-50 flex">
+      {showIdleWarning && (
+        <div className="fixed top-4 right-4 z-50 bg-amber-50 border border-amber-200 text-amber-900 rounded-xl shadow-lg px-4 py-3 w-[min(420px,calc(100vw-2rem))]">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold">Wykryto bezczynność w CRM</p>
+              <p className="text-sm mt-1">
+                Wylogowanie za <strong>{formatIdleCountdown(idleSecondsLeft)}</strong>.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowIdleWarning(false)}
+              className="text-amber-700 hover:text-amber-900"
+              aria-label="Zamknij komunikat"
             >
               <item.icon className="w-4 h-4 mr-3 shrink-0" />
               {item.name}
@@ -117,16 +125,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <p className="text-xs text-gray-400 truncate">{user.email}</p>
           </div>
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center w-full px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-800 rounded-md transition-colors"
-        >
-          <LogOut className="w-4 h-4 mr-3" />
-          Wyloguj
-        </button>
-      </div>
-    </div>
-  );
+      )}
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -134,15 +133,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
           <div className="relative z-50 h-full">
-            <Sidebar mobile />
+            <AdminSidebar
+              mobile
+              nav={nav}
+              pathname={pathname}
+              user={user}
+              onClose={() => setSidebarOpen(false)}
+              onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
+              onLogout={handleLogout}
+            />
           </div>
         </div>
       )}
 
       <div className="hidden lg:flex lg:shrink-0">
-        <div className="w-64">
+        <div className={sidebarCollapsed ? 'w-20' : 'w-64'}>
           <div className="flex flex-col h-screen sticky top-0">
-            <Sidebar />
+            <AdminSidebar
+              collapsed={sidebarCollapsed}
+              nav={nav}
+              pathname={pathname}
+              user={user}
+              onClose={() => setSidebarOpen(false)}
+              onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
+              onLogout={handleLogout}
+            />
           </div>
         </div>
       </div>

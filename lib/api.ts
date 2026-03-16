@@ -367,6 +367,15 @@ export const reservationsAPI = {
     
     if (error) throw toError(error, 'Nie udało się anulować rezerwacji');
   },
+
+  updateStatus: async (reservationId: string, status: Reservation['status']): Promise<void> => {
+    const { error } = await supabase
+      .from('reservations')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', reservationId);
+
+    if (error) throw toError(error, 'Nie udało się zaktualizować statusu wypożyczenia');
+  },
 };
 
 // ─── Profile ─────────────────────────────────────────────────────────────────

@@ -10,8 +10,28 @@ import type { Car } from "../../components/cars_page/types";
 const PAGE_SIZE = 6;
 type ViewMode = "grid" | "list";
 
+function getCategoryFromUrl(): Category {
+  if (typeof window === "undefined") return "Wszystkie";
+  const search = new URLSearchParams(window.location.search);
+  const raw = (search.get("typ") ?? search.get("category") ?? "").trim().toLowerCase();
+
+  const byQuery: Record<string, Category> = {
+    ekonomiczny: "ekonomiczny",
+    ekonomiczne: "ekonomiczny",
+    komfort: "komfort",
+    premium: "premium",
+    suv: "SUV",
+    van: "van",
+    vany: "van",
+    wszystkie: "Wszystkie",
+    all: "Wszystkie",
+  };
+
+  return byQuery[raw] ?? "Wszystkie";
+}
+
 export default function Samochody() {
-  const [activeCategory, setActiveCategory] = useState<Category>("Wszystkie");
+  const [activeCategory, setActiveCategory] = useState<Category>(() => getCategoryFromUrl());
   const [maxPrice, setMaxPrice]             = useState(MAX_PRICE);
   const [fuelType, setFuelType]             = useState<FuelType>("Wszystkie");
   const [gearbox, setGearbox]               = useState<GearboxType>("Wszystkie");

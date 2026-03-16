@@ -53,4 +53,3 @@ service-account*.json
 *.tsbuildinfo
 next-env.d.ts
 
-seed.sql

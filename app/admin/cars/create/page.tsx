@@ -23,7 +23,7 @@ const Card = ({ title, children }: { title: string; children: React.ReactNode })
 export default function CreateCarPage() {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [agents, setAgents] = useState<User[]>([]);
+  const [assignableUsers, setAssignableUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -40,21 +40,14 @@ export default function CreateCarPage() {
     license_plate: '', description: '', features: '', agent_id: '',
   });
 
-  const isAdmin = currentUser?.role === 'root';
-
   useEffect(() => {
-    authAPI.getProfile().then(u => {
-      setCurrentUser(u);
-      if (!isAdminRole(u)) setForm(f => ({ ...f, agent_id: u.id }));
-    });
+    authAPI.getProfile().then(setCurrentUser);
   }, []);
 
   useEffect(() => {
     if (!currentUser) return;
-    if (isAdmin) usersAPI.getAgents().then(setAgents).catch(() => {});
-  }, [currentUser, isAdmin]);
-
-  const isAdminRole = (u: User) => u.role === 'root';
+    usersAPI.getRegularUsers().then(setAssignableUsers).catch(() => {});
+  }, [currentUser]);
 
   const set = (k: keyof typeof form, v: string | number) => setForm(f => ({ ...f, [k]: v }));
 
@@ -103,7 +96,7 @@ export default function CreateCarPage() {
         license_plate: form.license_plate.trim() || undefined,
         description: form.description.trim() || undefined,
         features: form.features ? form.features.split(',').map(f => f.trim()).filter(Boolean) : [],
-        agent_id: form.agent_id || currentUser?.id,
+        agent_id: form.agent_id || undefined,
       });
       // update images with real car id
       if (sortedImages.length > 0) {
@@ -181,12 +174,12 @@ export default function CreateCarPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Cena za dobę (PLN) *</label>
               <input required type="number" value={form.price_per_day} onChange={e => set('price_per_day', e.target.value)} min={0} step={0.01} className={inp} placeholder="150.00" />
             </div>
-            {isAdmin && agents.length > 0 && (
+            {assignableUsers.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Agent</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Opiekun oferty</label>
                 <select value={form.agent_id} onChange={e => set('agent_id', e.target.value)} className={inp}>
                   <option value="">Brak przypisania</option>
-                  {agents.map(a => <option key={a.id} value={a.id}>{a.firstName} {a.lastName}</option>)}
+                  {assignableUsers.map(a => <option key={a.id} value={a.id}>{a.firstName} {a.lastName}</option>)}
                 </select>
               </div>
             )}

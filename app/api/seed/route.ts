@@ -9,9 +9,9 @@ const supabaseAdmin = createClient(
 
 const USERS = [
   { email: 'root@autorent.pl',   password: 'Root1234!',  firstName: 'Marek',     lastName: 'Kowalski',   role: 'root',  phone: '+48 600 100 200' },
-  { email: 'admin@autorent.pl',  password: 'Admin1234!', firstName: 'Anna',      lastName: 'Nowak',      role: 'admin', phone: '+48 601 200 300' },
-  { email: 'agent1@autorent.pl', password: 'Agent1234!', firstName: 'Piotr',     lastName: 'Wiśniewski', role: 'agent', phone: '+48 602 300 400' },
-  { email: 'agent2@autorent.pl', password: 'Agent1234!', firstName: 'Katarzyna', lastName: 'Dąbrowska',  role: 'agent', phone: '+48 603 400 500' },
+  { email: 'root@autorent.pl',   password: 'Root1234!',  firstName: 'Anna',      lastName: 'Nowak',      role: 'root', phone: '+48 601 200 300' },
+  { email: 'user1@autorent.pl',  password: 'User1234!',  firstName: 'Piotr',     lastName: 'Wiśniewski', role: 'user', phone: '+48 602 300 400' },
+  { email: 'user2@autorent.pl',  password: 'User1234!',  firstName: 'Katarzyna', lastName: 'Dąbrowska',  role: 'user', phone: '+48 603 400 500' },
 ];
 
 const CARS = (agent1: string, agent2: string) => [
@@ -113,6 +113,13 @@ export async function GET() {
         email: u.email,
         password: u.password,
         email_confirm: true,
+        user_metadata: {
+          first_name: u.firstName,
+          last_name: u.lastName,
+          role: u.role,
+          phone: u.phone,
+          is_public: true,
+        },
       });
       if (error || !data.user) {
         results.push(`ERROR create auth: ${u.email} — ${error?.message}`);
@@ -139,8 +146,8 @@ export async function GET() {
   }
 
   // ── 2. Cars ───────────────────────────────────────────────
-  const agent1 = idMap.get('agent1@autorent.pl');
-  const agent2 = idMap.get('agent2@autorent.pl');
+  const agent1 = idMap.get('user1@autorent.pl');
+  const agent2 = idMap.get('user2@autorent.pl');
 
   if (agent1 && agent2) {
     for (const car of CARS(agent1, agent2)) {

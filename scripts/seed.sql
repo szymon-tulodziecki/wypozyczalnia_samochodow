@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   first_name  text NOT NULL,
   last_name   text NOT NULL,
   email       text NOT NULL UNIQUE,
-  role        text NOT NULL DEFAULT 'agent' CHECK (role IN ('root','agent')),
+  role        text NOT NULL DEFAULT 'klient' CHECK (role IN ('root','agent','klient')),
   phone       text,
   avatar_url  text,
   bio         text,
@@ -131,7 +131,7 @@ CREATE TRIGGER trg_reservations_updated_at
 
 -- ─── Trigger: auto-tworzenie profilu po rejestracji ──────────
 -- Pierwszy zarejestrowany użytkownik (brak jakichkolwiek profili)
--- otrzymuje automatycznie rolę 'root'. Każdy kolejny — 'agent',
+-- otrzymuje automatycznie rolę 'root'. Każdy kolejny — 'klient',
 -- chyba że raw_user_meta_data->>'role' jawnie wskazuje inaczej.
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -145,7 +145,7 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM public.profiles LIMIT 1) THEN
     assigned_role := 'root';
   ELSE
-    assigned_role := COALESCE(NEW.raw_user_meta_data->>'role', 'agent');
+    assigned_role := COALESCE(NEW.raw_user_meta_data->>'role', 'klient');
   END IF;
 
   INSERT INTO public.profiles (id, first_name, last_name, email, role, created_at, updated_at)

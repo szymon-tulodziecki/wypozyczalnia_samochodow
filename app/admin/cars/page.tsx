@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-<<<<<<< ours
 import { carsAPI, authAPI } from '@/lib/api';
 import type { Car, User } from '@/types';
 import { Plus, Edit, Trash2, Eye, Search, Car as CarIcon, X } from 'lucide-react';
@@ -12,11 +11,6 @@ type Category = 'Wszystkie' | 'ekonomiczny' | 'komfort' | 'premium' | 'SUV' | 'v
 type FuelType = 'Wszystkie' | 'benzyna' | 'diesel' | 'elektryczny' | 'hybryda' | 'LPG';
 type GearboxType = 'Wszystkie' | 'manualna' | 'automatyczna';
 type SeatsOption = 'Wszystkie' | '2' | '4' | '5' | '7+';
-=======
-import { carsAPI } from '@/lib/api';
-import type { Car } from '@/types';
-import { Plus, Edit, Trash2, Eye, Search, Car as CarIcon } from 'lucide-react';
->>>>>>> theirs
 
 const STATUS_CLS: Record<string, string> = {
   dostepny: 'bg-green-100 text-green-700',
@@ -38,13 +32,10 @@ export default function CarsPage() {
   const [error, setError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
-<<<<<<< ours
   const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
-  const isAdmin = user?.role === 'root';
+  const [, setUser] = useState<User | null>(null);
 
   useEffect(() => { authAPI.getProfile().then(setUser).catch(() => {}); }, []);
-=======
->>>>>>> theirs
 
   useEffect(() => {
     carsAPI.getAll()

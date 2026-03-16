@@ -23,13 +23,10 @@ function readSession(): AuthSession | null {
 }
 
 export function useAuth() {
-  const [session, setSession] = useState<AuthSession | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<AuthSession | null>(() => readSession());
+  const [loading] = useState(false);
 
   useEffect(() => {
-    setSession(readSession());
-    setLoading(false);
-
     const onAuthChange = () => setSession(readSession());
     window.addEventListener(AUTH_CHANGE_EVENT, onAuthChange);
     return () => window.removeEventListener(AUTH_CHANGE_EVENT, onAuthChange);

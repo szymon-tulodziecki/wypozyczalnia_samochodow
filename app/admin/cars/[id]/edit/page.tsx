@@ -24,7 +24,7 @@ export default function EditCarPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [, setCurrentUser] = useState<User | null>(null);
   const [assignableUsers, setAssignableUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

@@ -55,7 +55,7 @@ export default function RentalsPage() {
   useEffect(() => {
     if (!user) return;
 
-    Promise.all([reservationsAPI.getAll(), carsAPI.getAll(), usersAPI.getAll()])
+    Promise.all([reservationsAPI.getAllAdmin(), carsAPI.getAll(), usersAPI.getAll()])
       .then(([reservationsData, carsData, usersData]) => {
         const carsMap = Object.fromEntries(carsData.map((car) => [car.id, car]));
         const usersMap = Object.fromEntries(usersData.map((u) => [u.id, u]));

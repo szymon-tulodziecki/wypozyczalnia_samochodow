@@ -1,17 +1,17 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usersAPI, authAPI } from '@/lib/api';
 import type { User } from '@/types';
-import { Plus, Search, Eye, Pencil, Trash2, Crown, Shield, UserIcon, Loader2 } from 'lucide-react';
+import { Plus, Search, Eye, Pencil, Trash2, Crown, UserIcon, Loader2 } from 'lucide-react';
 
 const ROLE_CLS: Record<string, string> = {
   root:  'bg-amber-100 text-amber-700',
-  admin: 'bg-blue-100 text-blue-700',
-  agent: 'bg-green-100 text-green-700',
+  agent: 'bg-blue-100 text-blue-700',
+  klient: 'bg-green-100 text-green-700',
 };
-const ROLE_LABEL: Record<string, string> = { root: 'Root', agent: 'Agent' };
-const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { root: Crown, admin: Shield, agent: UserIcon };
+const ROLE_LABEL: Record<string, string> = { root: 'Root', agent: 'Agent', klient: 'Klient' };
+const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { root: Crown, agent: UserIcon, klient: UserIcon };
 
 export default function UsersPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -32,10 +32,12 @@ export default function UsersPage() {
 
   const isAdmin = currentUser?.role === 'root';
 
+  const canEdit = (target: User) => {
+    return currentUser?.role === 'root' && !(target.role === 'root' && target.id !== currentUser.id);
+  };
+
   const canDelete = (target: User) => {
-    if (currentUser?.role === 'root') return target.id !== currentUser.id;
-    if (currentUser?.role === 'agent') return false;
-    return false;
+    return currentUser?.role === 'root' && target.id !== currentUser.id && target.role !== 'root';
   };
 
   const handleDelete = async (id: string) => {
@@ -96,6 +98,7 @@ export default function UsersPage() {
           <option value="">Wszystkie role</option>
           <option value="root">Root</option>
           <option value="agent">Agent</option>
+          <option value="klient">Klient</option>
         </select>
       </div>
 
@@ -147,7 +150,7 @@ export default function UsersPage() {
                             className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Podgląd">
                             <Eye className="w-4 h-4" />
                           </Link>
-                          {isAdmin && (
+                          {canEdit(user) && (
                             <Link href={`/admin/users/${user.id}/edit`}
                               className="p-1.5 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edytuj">
                               <Pencil className="w-4 h-4" />

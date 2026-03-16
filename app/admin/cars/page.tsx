@@ -21,7 +21,6 @@ const STATUS_LABEL: Record<string, string> = { dostepny: 'Dostępny', wynajety: 
 
 export default function CarsPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
   const [cars, setCars] = useState<Car[]>([]);
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<Category>('Wszystkie');
@@ -34,17 +33,16 @@ export default function CarsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
-  const isAdmin = user?.role === 'root';
+  const [, setUser] = useState<User | null>(null);
 
   useEffect(() => { authAPI.getProfile().then(setUser).catch(() => {}); }, []);
 
   useEffect(() => {
-    if (!user) return;
     carsAPI.getAll()
-      .then(data => setCars(isAdmin ? data : data.filter(c => c.agent_id === user.id)))
+      .then(setCars)
       .catch(() => setError('Błąd ładowania samochodów'))
       .finally(() => setLoading(false));
-  }, [user, isAdmin]);
+  }, []);
 
   useEffect(() => {
     if (cars.length === 0) return;
@@ -118,9 +116,7 @@ export default function CarsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {isAdmin ? 'Zarządzanie samochodami' : 'Moje samochody'}
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Zarządzanie samochodami</h1>
           <p className="text-sm text-gray-500 mt-0.5">{filtered.length} samochodów</p>
         </div>
         <Link href="/admin/cars/create"

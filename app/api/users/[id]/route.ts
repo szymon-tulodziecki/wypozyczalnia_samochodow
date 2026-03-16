@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
+function getProfileRoleErrorMessage(message: string) {
+  const lower = message.toLowerCase();
+  if (lower.includes('profiles_role_check')) {
+    return 'Baza danych nadal ma stary constraint dla pola roli. Zaktualizuj constraint `profiles_role_check`, aby akceptował role `user` i `root`.';
+  }
+  return message;
+}
+
 function getUserIdFromJwt(token: string): string | null {
   try {
     const parts = token.split('.');
@@ -12,13 +20,14 @@ function getUserIdFromJwt(token: string): string | null {
   }
 }
 
-async function getCallerRole(request: NextRequest): Promise<string | null> {
+async function getCaller(request: NextRequest): Promise<{ id: string; role: string } | null> {
   const token = request.headers.get('Authorization')?.replace('Bearer ', '');
   if (!token) return null;
   const userId = getUserIdFromJwt(token);
   if (!userId) return null;
   const { data } = await supabaseAdmin.from('profiles').select('role').eq('id', userId).single();
-  return (data as { role: string } | null)?.role ?? null;
+  const role = (data as { role: string } | null)?.role;
+  return role ? { id: userId, role } : null;
 }
 
 export async function DELETE(
@@ -26,12 +35,22 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const callerRole = await getCallerRole(request);
-    if (callerRole !== 'root') {
+    const caller = await getCaller(request);
+    if (caller?.role !== 'root') {
       return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
     }
 
     const { id } = await params;
+
+    const { data: targetProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('role')
+      .eq('id', id)
+      .single();
+
+    if ((targetProfile as { role?: string } | null)?.role === 'root' && id !== caller.id) {
+      return NextResponse.json({ error: 'Nie można usunąć innego konta root.' }, { status: 403 });
+    }
 
     // Delete profile row first to avoid trigger/cascade issues
     const { error: profileError } = await supabaseAdmin
@@ -60,12 +79,22 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const callerRole = await getCallerRole(request);
-    if (callerRole !== 'root') {
+    const caller = await getCaller(request);
+    if (caller?.role !== 'root') {
       return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
     }
 
     const { id } = await params;
+    const { data: targetProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('role')
+      .eq('id', id)
+      .single();
+
+    if ((targetProfile as { role?: string } | null)?.role === 'root' && id !== caller.id) {
+      return NextResponse.json({ error: 'Nie można edytować innego konta root.' }, { status: 403 });
+    }
+
     const body = await request.json() as {
       password?: string;
       firstName?: string;
@@ -75,6 +104,10 @@ export async function PATCH(
       isPublic?: boolean;
       role?: string;
     };
+
+    if (body.role !== undefined && body.role !== 'agent' && body.role !== 'klient' && body.role !== 'root') {
+      return NextResponse.json({ error: 'Nieprawidłowa rola użytkownika.' }, { status: 400 });
+    }
 
     if (body.password) {
       const { error } = await supabaseAdmin.auth.admin.updateUserById(id, { password: body.password });
@@ -95,7 +128,7 @@ export async function PATCH(
       .eq('id', id)
       .select('*')
       .single();
-    if (profileError) return NextResponse.json({ error: profileError.message }, { status: 400 });
+    if (profileError) return NextResponse.json({ error: getProfileRoleErrorMessage(profileError.message) }, { status: 400 });
 
     return NextResponse.json({ user: data });
   } catch (err) {

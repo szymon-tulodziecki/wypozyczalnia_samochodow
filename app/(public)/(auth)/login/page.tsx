@@ -29,16 +29,38 @@ export default function LoginPage() {
     try {
       await authAPI.login(email, password);
       const profile = await authAPI.getProfile();
-      
+
+      const params = new URLSearchParams(window.location.search);
+      const isAdminFlow = params.get('admin') === '1';
+
+      // Jeśli logowanie na stronę publiczną, zabroń adminom i agentom używania tego formularza
+      if (!isAdminFlow && profile.role !== 'klient') {
+        await authAPI.logout();
+        setError('Użyj panelu administracyjnego do logowania (nie możesz zalogować się tutaj).');
+        return;
+      }
+
+      // Jeśli logowanie z panelu admin, zabroń klientom używania formularza admina
+      if (isAdminFlow && profile.role !== 'root' && profile.role !== 'agent') {
+        await authAPI.logout();
+        setError('Brak uprawnień do panelu administracyjnego.');
+        return;
+      }
+
       // Zapisz sesję z minimum danych prywatnych
       storeSession({
         id: profile.id,
         email: profile.email,
         firstName: profile.firstName,
         lastName: profile.lastName,
+        role: profile.role,
       });
-      
-      router.push('/konto');
+
+      if (isAdminFlow) {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/konto');
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Błąd logowania');
     } finally {

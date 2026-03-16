@@ -1,4 +1,4 @@
-﻿export interface Car {
+export interface Car {
   id: string;
   brand: string;
   model: string;
@@ -33,7 +33,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'root' | 'admin' | 'agent';
+  role: 'root' | 'agent' | 'klient';
   phone?: string;
   avatarUrl?: string;
   bio?: string;
@@ -75,6 +75,8 @@ export interface Reservation {
   car_id: string;
   start_date: string;
   end_date: string;
+  pickup_time?: string;
+  return_time?: string;
   total_price: number;
   status: 'aktywna' | 'zakonczona' | 'anulowana';
   pickup_location?: string;
@@ -83,4 +85,10 @@ export interface Reservation {
   created_at: string;
   updated_at: string;
   car?: Car;
+  profile?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
 }

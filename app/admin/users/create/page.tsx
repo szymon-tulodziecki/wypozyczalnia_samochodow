@@ -27,7 +27,7 @@ export default function CreateUserPage() {
     firstName: '',
     lastName: '',
     phone: '',
-    role: 'agent' as 'agent' | 'root',
+    role: 'klient' as 'klient' | 'agent' | 'root',
   });
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export default function CreateUserPage() {
         firstName: form.firstName,
         lastName: form.lastName,
         phone: form.phone || undefined,
-        role: currentUser?.role === 'root' ? form.role : 'agent',
+        role: form.role,
       });
       router.push('/admin/users');
     } catch (err: unknown) {
@@ -106,7 +106,8 @@ export default function CreateUserPage() {
           {currentUser?.role === 'root' && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Rola</label>
-              <select value={form.role} onChange={e => set('role', e.target.value as 'agent' | 'admin')} className={inp}>
+              <select value={form.role} onChange={e => set('role', e.target.value as 'klient' | 'agent' | 'root')} className={inp}>
+                <option value="klient">Klient</option>
                 <option value="agent">Agent</option>
                 <option value="root">Root</option>
               </select>

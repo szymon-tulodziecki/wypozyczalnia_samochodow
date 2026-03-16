@@ -12,15 +12,15 @@ function getUserIdFromJwt(token: string): string | null {
   }
 }
 
-async function getCaller(request: NextRequest): Promise<{ id: string; role: string; isPublic: boolean } | null> {
+async function getCaller(request: NextRequest): Promise<{ id: string; role: string } | null> {
   const token = request.headers.get('Authorization')?.replace('Bearer ', '');
   if (!token) return null;
   const userId = getUserIdFromJwt(token);
   if (!userId) return null;
-  const { data } = await supabaseAdmin.from('profiles').select('role, is_public').eq('id', userId).single();
+  const { data } = await supabaseAdmin.from('profiles').select('role').eq('id', userId).single();
   if (!data) return null;
-  const profile = data as { role: string; is_public?: boolean | null };
-  return { id: userId, role: profile.role, isPublic: profile.is_public !== false };
+  const profile = data as { role: string };
+  return { id: userId, role: profile.role };
 }
 
 export async function PATCH(
@@ -30,17 +30,10 @@ export async function PATCH(
   try {
     const caller = await getCaller(request);
     if (!caller) return NextResponse.json({ error: 'Nieautoryzowany' }, { status: 401 });
-    if (!caller.isPublic) return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
 
     const { id } = await params;
 
-    // Agent może edytować tylko swoje auto
-    if (caller.role === 'agent') {
-      const { data: car } = await supabaseAdmin.from('cars').select('agent_id').eq('id', id).single();
-      if (!car || (car as { agent_id: string }).agent_id !== caller.id) {
-        return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
-      }
-    } else if (caller.role !== 'root') {
+    if (caller.role !== 'root') {
       return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
     }
 
@@ -67,17 +60,10 @@ export async function DELETE(
   try {
     const caller = await getCaller(request);
     if (!caller) return NextResponse.json({ error: 'Nieautoryzowany' }, { status: 401 });
-    if (!caller.isPublic) return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
 
     const { id } = await params;
 
-    // Agent może usuwać tylko swoje auto
-    if (caller.role === 'agent') {
-      const { data: car } = await supabaseAdmin.from('cars').select('agent_id').eq('id', id).single();
-      if (!car || (car as { agent_id: string }).agent_id !== caller.id) {
-        return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
-      }
-    } else if (caller.role !== 'root') {
+    if (caller.role !== 'root') {
       return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
     }
 

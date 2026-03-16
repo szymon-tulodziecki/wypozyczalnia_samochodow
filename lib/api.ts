@@ -1,4 +1,4 @@
-﻿import { supabase } from './supabase';
+import { supabase } from './supabase';
 import type { Car, User, CreateCarInput, Reservation } from '../types';
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ function mapProfile(row: Record<string, unknown>): User {
     firstName: (row.first_name as string) || '',
     lastName: (row.last_name as string) || '',
     email: (row.email as string) || '',
-    role: (row.role as User['role']) || 'agent',
+    role: (row.role as User['role']) || 'klient',
     phone: row.phone as string | undefined,
     avatarUrl: row.avatar_url as string | undefined,
     bio: row.bio as string | undefined,
@@ -160,7 +160,6 @@ export const carsAPI = {
   },
 
   deleteImage: async (url: string): Promise<void> => {
-    // Wyciągnij public_id z URL Cloudinary, np. .../upload/v1234/cars/abc.jpg → cars/abc
     const match = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/);
     if (!match) return;
     await fetch('/api/upload/delete', {
@@ -180,8 +179,8 @@ export const usersAPI = {
     return (data || []).map(r => mapProfile(r as Record<string, unknown>));
   },
 
-  getAgents: async (): Promise<User[]> => {
-    const { data, error } = await supabase.from('profiles').select('*').eq('role', 'agent').order('first_name');
+  getRegularUsers: async (): Promise<User[]> => {
+    const { data, error } = await supabase.from('profiles').select('*').in('role', ['klient', 'agent']).order('first_name');
     if (error) throw error;
     return (data || []).map(r => mapProfile(r as Record<string, unknown>));
   },
@@ -248,18 +247,100 @@ export const usersAPI = {
 // ─── Reservations ────────────────────────────────────────────────────────────
 
 export const reservationsAPI = {
-  getAll: async (): Promise<Reservation[]> => {
-    const { data, error } = await supabase
-      .from('reservations')
-      .select('*')
-      .order('created_at', { ascending: false });
+  getAllAdmin: async (): Promise<Reservation[]> => {
+    const headers = await getAuthHeader();
+    const res = await fetch('/api/admin/reservations', { headers, cache: 'no-store' });
+    const json = await res.json() as { reservations?: Reservation[]; error?: string };
+    if (!res.ok) throw new Error(json.error ?? 'Nie udało się pobrać rezerwacji');
+    return json.reservations ?? [];
+  },
 
-    if (error) {
-      if (isMissingReservationsRelation(error)) return [];
-      throw toError(error, 'Nie udało się pobrać wypożyczeń');
+  getByIdAdmin: async (id: string): Promise<Reservation> => {
+    const headers = await getAuthHeader();
+    const res = await fetch(`/api/admin/reservations/${id}`, { headers, cache: 'no-store' });
+    const json = await res.json() as { reservation?: Reservation; error?: string };
+    if (!res.ok) throw new Error(json.error ?? 'Nie udało się pobrać rezerwacji');
+    return json.reservation!;
+  },
+
+  createAdmin: async (payload: {
+    userId: string;
+    carId: string;
+    startDate: string;
+    endDate: string;
+    pickupTime: string;
+    pickupLocation: string;
+    returnLocation: string;
+    notes?: string;
+    status: Reservation['status'];
+  }): Promise<Reservation> => {
+    const headers = await getAuthHeader();
+    const res = await fetch('/api/admin/reservations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...headers },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json() as { reservation?: Reservation; error?: string };
+    if (!res.ok) throw new Error(json.error ?? 'Nie udało się utworzyć rezerwacji');
+    return json.reservation!;
+  },
+
+  updateAdmin: async (id: string, payload: {
+    userId: string;
+    carId: string;
+    startDate: string;
+    endDate: string;
+    pickupTime: string;
+    pickupLocation: string;
+    returnLocation: string;
+    notes?: string;
+    status: Reservation['status'];
+  }): Promise<Reservation> => {
+    const headers = await getAuthHeader();
+    const res = await fetch(`/api/admin/reservations/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...headers },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json() as { reservation?: Reservation; error?: string };
+    if (!res.ok) throw new Error(json.error ?? 'Nie udało się zaktualizować rezerwacji');
+    return json.reservation!;
+  },
+
+  deleteAdmin: async (id: string): Promise<void> => {
+    const headers = await getAuthHeader();
+    const res = await fetch(`/api/admin/reservations/${id}`, { method: 'DELETE', headers });
+    if (!res.ok) {
+      const json = await res.json() as { error?: string };
+      throw new Error(json.error ?? 'Nie udało się usunąć rezerwacji');
     }
+  },
 
-    return (data || []) as Reservation[];
+  getBlockedDatesForCar: async (carId: string): Promise<Array<{ startDate: string; endDate: string }>> => {
+    const res = await fetch(`/api/cars/${carId}/reservations`, { cache: 'no-store' });
+    const json = await res.json() as { reservations?: Array<{ startDate: string; endDate: string }>; error?: string };
+    if (!res.ok) throw new Error(json.error ?? 'Nie udało się pobrać terminów rezerwacji');
+    return json.reservations ?? [];
+  },
+
+  create: async (payload: {
+    carId: string;
+    startDate: string;
+    endDate: string;
+    pickupTime: string;
+    pickupLocation: string;
+    returnLocation: string;
+    notes?: string;
+  }): Promise<Reservation> => {
+    const headers = await getAuthHeader();
+    const res = await fetch('/api/reservations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...headers },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json() as { reservation?: Reservation; error?: string };
+    if (!res.ok) throw new Error(json.error ?? 'Nie udało się utworzyć rezerwacji');
+    return json.reservation!;
   },
 
   getUserReservations: async (userId: string): Promise<Reservation[]> => {
@@ -268,12 +349,12 @@ export const reservationsAPI = {
       .select('*, car:car_id(id, brand, model, year, price_per_day, images)')
       .eq('user_id', userId)
       .order('start_date', { ascending: false });
-    
+
     if (error) {
       if (isMissingReservationsRelation(error)) return [];
       throw toError(error, 'Nie udało się pobrać rezerwacji');
     }
-    
+
     return (data || []) as Reservation[];
   },
 
@@ -282,7 +363,7 @@ export const reservationsAPI = {
       .from('reservations')
       .update({ status: 'anulowana', updated_at: new Date().toISOString() })
       .eq('id', reservationId);
-    
+
     if (error) throw toError(error, 'Nie udało się anulować rezerwacji');
   },
 
@@ -305,7 +386,7 @@ export const profileAPI = {
       .select('*')
       .eq('id', userId)
       .single();
-    
+
     if (error) throw error;
     return mapProfile(data as Record<string, unknown>);
   },
@@ -328,7 +409,7 @@ export const profileAPI = {
       .eq('id', userId)
       .select('*')
       .single();
-    
+
     if (error) throw error;
     return mapProfile(data as Record<string, unknown>);
   },

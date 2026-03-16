@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { usersAPI, authAPI } from '@/lib/api';
@@ -28,7 +28,7 @@ export default function EditUserPage() {
 
   const [form, setForm] = useState({
     firstName: '', lastName: '', phone: '',
-    role: 'agent' as 'agent' | 'root',
+    role: 'klient' as 'klient' | 'agent' | 'root',
     password: '', confirmPassword: '',
   });
 
@@ -93,6 +93,7 @@ export default function EditUserPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Rola</label>
                 <select value={form.role} onChange={e => set('role', e.target.value as typeof form.role)} className={inp}>
+                  <option value="klient">Klient</option>
                   <option value="agent">Agent</option>
                   <option value="root">Root</option>
                 </select>

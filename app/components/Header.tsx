@@ -13,19 +13,27 @@ const publicNavLinks = [
 
 const authNavLinks = [
   { href: '/', label: 'Strona Główna' },
-  { href: '/samochody', label: 'Nasza Flota' },
-  { href: '/kontakt', label: 'Kontakt' },
+  { href: '/cars', label: 'Nasza Flota' },
+  { href: '/contact', label: 'Kontakt' },
   { href: '/konto', label: 'Moje Konto' },
+];
+
+const adminNavLinks = [
+  { href: '/', label: 'Strona Główna' },
+  { href: '/cars', label: 'Nasza Flota' },
+  { href: '/contact', label: 'Kontakt' },
+  { href: '/admin/dashboard', label: 'Dashboard' },
 ];
 
 export default function Header() {
   const router = useRouter();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, session } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('/');
+  const isAdmin = session?.role === 'root';
 
-  const navLinks = isAuthenticated ? authNavLinks : publicNavLinks;
+  const navLinks = isAuthenticated ? (isAdmin ? adminNavLinks : authNavLinks) : publicNavLinks;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);

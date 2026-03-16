@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
@@ -24,8 +24,8 @@ export default function EditCarPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [agents, setAgents] = useState<User[]>([]);
+  const [, setCurrentUser] = useState<User | null>(null);
+  const [assignableUsers, setAssignableUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -43,8 +43,6 @@ export default function EditCarPage() {
     price_per_day: '', status: 'dostepny' as (typeof STATUSES)[number],
     license_plate: '', description: '', features: '', agent_id: '',
   });
-
-  const isAdmin = currentUser?.role === 'root';
 
   useEffect(() => {
     Promise.all([authAPI.getProfile(), carsAPI.getById(id)])
@@ -65,7 +63,7 @@ export default function EditCarPage() {
           license_plate: car.license_plate ?? '', description: car.description ?? '',
           features: (car.features ?? []).join(', '), agent_id: car.agent_id ?? '',
         });
-        if (user.role === 'root') usersAPI.getAgents().then(setAgents).catch(() => {});
+        usersAPI.getRegularUsers().then(users => setAssignableUsers(users.filter(u => u.role === 'agent'))).catch(() => {});
       })
       .catch(() => setError('Nie udało się załadować danych.'))
       .finally(() => setLoading(false));
@@ -213,12 +211,12 @@ export default function EditCarPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Cena za dobę (PLN) *</label>
               <input type="number" min={0} step="0.01" value={form.price_per_day} onChange={e => set('price_per_day', e.target.value)} required className={inp} />
             </div>
-            {isAdmin && (
+            {assignableUsers.length > 0 && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Agent</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Opiekun oferty</label>
                 <select value={form.agent_id} onChange={e => set('agent_id', e.target.value)} className={inp}>
                   <option value="">Brak przypisania</option>
-                  {agents.map(a => <option key={a.id} value={a.id}>{a.firstName} {a.lastName}</option>)}
+                  {assignableUsers.map(a => <option key={a.id} value={a.id}>{a.firstName} {a.lastName}</option>)}
                 </select>
               </div>
             )}

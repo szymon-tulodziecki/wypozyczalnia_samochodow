@@ -5,7 +5,13 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { carsAPI } from '@/lib/api';
 import type { Car } from '@/types';
-import { Plus, Edit, Trash2, Eye, Search, Car as CarIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, Search, Car as CarIcon, X } from 'lucide-react';
+
+type Category = 'Wszystkie' | Car['category'];
+type FuelType = 'Wszystkie' | Car['fuel_type'];
+type GearboxType = 'Wszystkie' | Car['gearbox'];
+type SeatsOption = 'Wszystkie' | '2' | '4' | '5' | '7+';
+type PreviewImage = { src: string; alt: string };
 
 const STATUS_CLS: Record<string, string> = {
   dostepny: 'bg-green-100 text-green-700',
@@ -23,6 +29,7 @@ export default function CarsPage() {
   const [fuelType, setFuelType] = useState<FuelType>('Wszystkie');
   const [gearbox, setGearbox] = useState<GearboxType>('Wszystkie');
   const [seats, setSeats] = useState<SeatsOption>('Wszystkie');
+  const [previewImage, setPreviewImage] = useState<PreviewImage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);

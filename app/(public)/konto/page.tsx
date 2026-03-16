@@ -179,8 +179,16 @@ function ReservationsTab({ userId }: { userId: string }) {
                 <span className="detail-value">{selected.pickup_location || 'Brak informacji'}</span>
               </div>
               <div className="detail-item">
+                <span className="detail-label">Godzina odbioru</span>
+                <span className="detail-value">{selected.pickup_time || 'Brak informacji'}</span>
+              </div>
+              <div className="detail-item">
                 <span className="detail-label">Miejsce zwrotu</span>
                 <span className="detail-value">{selected.return_location || 'Brak informacji'}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Zwrot auta</span>
+                <span className="detail-value">Do 19:00 ostatniego dnia</span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">Data rezerwacji</span>

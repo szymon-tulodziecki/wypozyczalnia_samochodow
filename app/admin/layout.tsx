@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { authAPI } from '@/lib/api';
 import type { User } from '@/types';
-import { Home, Car, Users, LogOut, Menu, X, Crown, CalendarDays, PanelLeftClose, PanelLeftOpen, type LucideIcon } from 'lucide-react';
+import { Home, Car, Users, LogOut, Menu, X, Crown, CalendarDays, PanelLeftClose, PanelLeftOpen, type LucideIcon, ExternalLink } from 'lucide-react';
 
 const IDLE_TIMEOUT_MS = 20 * 60 * 1000;
 const WARNING_BEFORE_MS = 2 * 60 * 1000;
@@ -203,26 +203,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
-        router.replace('/admin');
+        router.replace('/login');
         return;
       }
+
       authAPI.getProfile()
         .then(profile => {
-          if (profile.isPublic === false) {
+          if (profile.role !== 'root') {
             router.replace('/konto');
             return;
           }
           setUser(profile);
         })
-        .catch(() => router.replace('/admin'))
+        .catch(() => router.replace('/login'))
         .finally(() => setLoading(false));
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') router.replace('/admin');
+      if (event === 'SIGNED_OUT') {
+        router.replace('/login');
+      }
     });
+
     return () => subscription.unsubscribe();
-  }, [router, isLoginPage]);
+  }, [router]);
 
   const handleLogout = async () => {
     clearIdleTimers();
@@ -314,12 +318,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const nav = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
+    { name: 'Rezerwacje', href: '/admin/reservations', icon: CalendarDays },
     { name: 'Samochody', href: '/admin/cars', icon: Car },
-    { name: 'Wypożyczenia', href: '/admin/rentals', icon: CalendarDays },
     ...(isAdmin ? [{ name: 'Użytkownicy', href: '/admin/users', icon: Users }] : []),
   ];
 
-  if (isLoginPage) return <>{children}</>;
+  if (pathname === '/admin') return <>{children}</>;
 
   if (loading) {
     return (
@@ -387,7 +391,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
       )}
-      {/* Desktop sidebar */}
+
       <div className="hidden lg:flex lg:shrink-0">
         <div className={sidebarCollapsed ? 'w-20' : 'w-64'}>
           <div className="flex flex-col h-screen sticky top-0">
@@ -403,18 +407,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
       </div>
-      {/* Main content */}
+
       <div className="flex flex-col flex-1 min-w-0">
-        {/* Mobile top bar */}
         <div className="lg:hidden flex items-center h-14 px-4 bg-gray-900 border-b border-gray-800">
           <button onClick={() => setSidebarOpen(true)} className="text-gray-400 hover:text-white mr-3">
             <Menu className="w-5 h-5" />
           </button>
           <span className="text-white font-semibold">AutoRent Admin</span>
         </div>
-        <main className="flex-1 p-6">
-          {children}
-        </main>
+        <main className="flex-1 p-6">{children}</main>
       </div>
     </div>
   );

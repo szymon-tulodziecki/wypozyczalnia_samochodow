@@ -4,15 +4,14 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { usersAPI, authAPI } from '@/lib/api';
 import type { User } from '@/types';
-import { ArrowLeft, Pencil, Crown, Shield, UserIcon, Mail, Phone, Loader2 } from 'lucide-react';
+import { ArrowLeft, Pencil, Crown, UserIcon, Mail, Phone, Loader2 } from 'lucide-react';
 
 const ROLE_CLS: Record<string, string> = {
   root:  'bg-amber-100 text-amber-700',
-  admin: 'bg-blue-100 text-blue-700',
-  agent: 'bg-green-100 text-green-700',
+  user: 'bg-green-100 text-green-700',
 };
-const ROLE_LABEL: Record<string, string> = { root: 'Root', agent: 'Agent' };
-const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { root: Crown, admin: Shield, agent: UserIcon };
+const ROLE_LABEL: Record<string, string> = { root: 'Root', user: 'Użytkownik' };
+const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = { root: Crown, user: UserIcon };
 
 export default function ViewUserPage() {
   const router = useRouter();
@@ -40,6 +39,7 @@ export default function ViewUserPage() {
   );
 
   const isAdmin = currentUser?.role === 'root';
+  const canEdit = isAdmin && !(user.role === 'root' && user.id !== currentUser?.id);
   const RoleIcon = ROLE_ICONS[user.role] ?? UserIcon;
   const initials = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase();
 
@@ -52,7 +52,7 @@ export default function ViewUserPage() {
           </button>
           <h1 className="text-2xl font-bold text-gray-900">Profil użytkownika</h1>
         </div>
-        {isAdmin && (
+        {canEdit && (
           <Link href={`/admin/users/${id}/edit`}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition-colors text-sm font-medium shadow-sm">
             <Pencil className="w-4 h-4" /> Edytuj

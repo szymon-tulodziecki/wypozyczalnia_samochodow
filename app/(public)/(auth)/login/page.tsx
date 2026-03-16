@@ -36,9 +36,14 @@ export default function LoginPage() {
         email: profile.email,
         firstName: profile.firstName,
         lastName: profile.lastName,
+        role: profile.role,
       });
-      
-      router.push('/konto');
+
+      if (profile.role === 'root') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/konto');
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Błąd logowania');
     } finally {

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { usersAPI, authAPI } from '@/lib/api';
@@ -93,7 +93,7 @@ export default function EditUserPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Rola</label>
                 <select value={form.role} onChange={e => set('role', e.target.value as typeof form.role)} className={inp}>
-                  <option value="agent">Agent</option>
+                  <option value="user">Użytkownik</option>
                   <option value="root">Root</option>
                 </select>
               </div>

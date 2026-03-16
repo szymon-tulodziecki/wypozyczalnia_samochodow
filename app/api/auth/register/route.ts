@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
+function getProfileRoleErrorMessage(message: string) {
+  const lower = message.toLowerCase();
+  if (lower.includes('profiles_role_check')) {
+    return 'Baza danych nadal ma stary constraint dla pola roli. Zaktualizuj constraint `profiles_role_check`, aby akceptował role `user` i `root`.';
+  }
+  return message;
+}
+
 function normalizeEmail(value: string) {
   return value.trim().toLowerCase();
 }
@@ -99,7 +107,7 @@ export async function POST(request: NextRequest) {
 
     if (profileError) {
       await supabaseAdmin.auth.admin.deleteUser(userId);
-      return NextResponse.json({ error: profileError.message }, { status: 400 });
+      return NextResponse.json({ error: getProfileRoleErrorMessage(profileError.message) }, { status: 400 });
     }
 
     return NextResponse.json({ message: 'Konto zostało utworzone. Za chwilę przeniesiemy Cię do logowania.' }, { status: 201 });

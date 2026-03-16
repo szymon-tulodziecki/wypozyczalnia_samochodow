@@ -447,9 +447,9 @@ export default function CarDetailPage() {
               </div>
 
               {car.status === 'dostepny' ? (
-                <a href="tel:+48000000000" className="dp-cta">
+                <button className="dp-cta" onClick={() => router.push(`/cars/${id}/zarezerwuj`)}>
                   <Phone size={14} /><span>Zarezerwuj teraz</span>
-                </a>
+                </button>
               ) : (
                 <div className="dp-unavail">{STATUS_LABEL[car.status]}</div>
               )}

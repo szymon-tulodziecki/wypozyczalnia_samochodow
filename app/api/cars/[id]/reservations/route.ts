@@ -16,9 +16,9 @@ export async function GET(
 
     const { data, error } = await supabaseAdmin
       .from('reservations')
-      .select('start_date, end_date')
+      .select('start_date, end_date, status')
       .eq('car_id', id)
-      .eq('status', 'aktywna')
+      .neq('status', 'anulowana')
       .gte('end_date', today)
       .order('start_date', { ascending: true });
 
@@ -29,12 +29,12 @@ export async function GET(
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json({
-      reservations: (data ?? []).map(row => ({
-        startDate: row.start_date as string,
-        endDate: row.end_date as string,
-      })),
-    });
+    const reservations = (data ?? []).map(row => ({
+      startDate: row.start_date as string,
+      endDate: row.end_date as string,
+    }));
+
+    return NextResponse.json({ reservations });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Nie udało się pobrać rezerwacji auta.' },

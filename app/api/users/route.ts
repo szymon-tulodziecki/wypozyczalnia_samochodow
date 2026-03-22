@@ -32,7 +32,7 @@ async function getCallerRole(request: NextRequest): Promise<string | null> {
 export async function POST(request: NextRequest) {
   try {
     const callerRole = await getCallerRole(request);
-    if (callerRole !== 'root') {
+    if (callerRole !== 'root' && callerRole !== 'agent') {
       return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
     }
 
@@ -41,6 +41,11 @@ export async function POST(request: NextRequest) {
 
     if (role !== 'agent' && role !== 'klient' && role !== 'root') {
       return NextResponse.json({ error: 'Nieprawidłowa rola użytkownika.' }, { status: 400 });
+    }
+
+    // Agents can only create 'klient' users, not 'agent' or 'root'
+    if (callerRole === 'agent' && role !== 'klient') {
+      return NextResponse.json({ error: 'Brak uprawnień do tworzenia użytkownika z rolą ' + role + '.' }, { status: 403 });
     }
 
     const { data, error } = await supabaseAdmin.auth.admin.createUser({

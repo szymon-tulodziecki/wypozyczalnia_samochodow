@@ -65,7 +65,7 @@ export default function ReservationDetailsPage() {
       <div className="konto-page">
         <div className="page-inner">
           <div className="alert-error">{error}</div>
-          <Link href="/konto" className="btn-outline-sm">Wróć do listy rezerwacji</Link>
+          <Link href="/account" className="btn-outline-sm">Wróć do listy rezerwacji</Link>
         </div>
       </div>
     );
@@ -95,7 +95,7 @@ export default function ReservationDetailsPage() {
         </section>
 
         <div className="actions-row">
-          <Link href="/konto" className="btn-outline-sm">Wróć do konta</Link>
+          <Link href="/account" className="btn-outline-sm">Wróć do konta</Link>
           {reservation.status === 'aktywna' && (
             <button className="btn-danger-sm" onClick={async () => {
               try {

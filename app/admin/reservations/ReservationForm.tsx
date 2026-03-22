@@ -27,11 +27,13 @@ const Card = ({ title, children }: { title: string; children: React.ReactNode })
 );
 
 export function ReservationForm({
+  currentUser,
   initialValues,
   onSubmit,
   submitLabel,
   loading,
 }: {
+  currentUser: User | null;
   initialValues: ReservationFormValues;
   onSubmit: (values: ReservationFormValues) => Promise<void>;
   submitLabel: string;
@@ -50,12 +52,16 @@ export function ReservationForm({
   useEffect(() => {
     Promise.all([carsAPI.getAll(), usersAPI.getAll()])
       .then(([carsData, usersData]) => {
-        setCars(carsData);
+        // Filter cars: agents see only their assigned cars
+        const filteredCars = currentUser?.role === 'agent' 
+          ? carsData.filter(car => car.agent_id === currentUser.id)
+          : carsData;
+        setCars(filteredCars);
         setUsers(usersData.filter(user => user.role === 'klient'));
       })
       .catch(() => setError('Nie udało się załadować listy aut lub użytkowników.'))
       .finally(() => setBootLoading(false));
-  }, []);
+  }, [currentUser]);
 
   const selectedCar = useMemo(
     () => cars.find(car => car.id === form.carId) ?? null,

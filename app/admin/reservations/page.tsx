@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CalendarDays, CarFront, MapPin, Pencil, Plus, RefreshCw, Trash2, UserRound } from 'lucide-react';
-import { reservationsAPI } from '@/lib/api';
-import type { Reservation } from '@/types';
+import { reservationsAPI, authAPI } from '@/lib/api';
+import type { Reservation, User } from '@/types';
 
 type ReservationStatus = Reservation['status'] | 'wszystkie';
 
@@ -37,12 +38,28 @@ function formatCurrency(value: number) {
 }
 
 export default function AdminReservationsPage() {
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [filter, setFilter] = useState<ReservationStatus>('wszystkie');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  useEffect(() => {
+    authAPI.getProfile()
+      .then(user => {
+        if (user.role !== 'root' && user.role !== 'agent') {
+          router.replace('/account');
+          return;
+        }
+        setCurrentUser(user);
+      })
+      .catch(() => {
+        router.replace('/admin/login');
+      });
+  }, [router]);
 
   const loadReservations = async () => {
     try {
@@ -251,19 +268,23 @@ export default function AdminReservationsPage() {
                         <Link href={`/admin/reservations/${reservation.id}/edit`} className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-amber-50 hover:text-amber-600" title="Edytuj">
                           <Pencil className="h-4 w-4" />
                         </Link>
-                        {confirmId === reservation.id ? (
-                          <div className="flex items-center gap-1">
-                            <button onClick={() => handleDelete(reservation.id)} className="rounded-lg bg-red-600 px-2 py-1 text-xs text-white transition-colors hover:bg-red-700">
-                              Tak
-                            </button>
-                            <button onClick={() => setConfirmId(null)} className="rounded-lg bg-gray-200 px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-300">
-                              Nie
-                            </button>
-                          </div>
-                        ) : (
-                          <button onClick={() => setConfirmId(reservation.id)} disabled={deletingId === reservation.id} className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-40" title="Usuń">
-                            {deletingId === reservation.id ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-400 border-t-transparent" /> : <Trash2 className="h-4 w-4" />}
-                          </button>
+                        {currentUser?.role === 'root' && (
+                          <>
+                            {confirmId === reservation.id ? (
+                              <div className="flex items-center gap-1">
+                                <button onClick={() => handleDelete(reservation.id)} className="rounded-lg bg-red-600 px-2 py-1 text-xs text-white transition-colors hover:bg-red-700">
+                                  Tak
+                                </button>
+                                <button onClick={() => setConfirmId(null)} className="rounded-lg bg-gray-200 px-2 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-300">
+                                  Nie
+                                </button>
+                              </div>
+                            ) : (
+                              <button onClick={() => setConfirmId(reservation.id)} disabled={deletingId === reservation.id} className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-40" title="Usuń">
+                                {deletingId === reservation.id ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-400 border-t-transparent" /> : <Trash2 className="h-4 w-4" />}
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </td>

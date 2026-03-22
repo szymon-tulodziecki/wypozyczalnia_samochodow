@@ -3,26 +3,49 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { reservationsAPI } from '@/lib/api';
+import { reservationsAPI, authAPI } from '@/lib/api';
 import { ReservationForm } from '../../ReservationForm';
-import type { Reservation } from '@/types';
+import type { Reservation, User } from '@/types';
 
 export default function EditReservationPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
 
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    authAPI.getProfile()
+      .then(user => {
+        if (user.role !== 'root' && user.role !== 'agent') {
+          router.replace('/admin');
+          return;
+        }
+        setCurrentUser(user);
+      })
+      .catch(() => {
+        router.replace('/admin/login');
+      });
+  }, [router]);
+
+  useEffect(() => {
     reservationsAPI.getByIdAdmin(id)
-      .then(setReservation)
+      .then(res => {
+        // Agents can only edit reservations for their assigned cars
+        if (currentUser && currentUser.role === 'agent' && res.car?.agent_id !== currentUser.id) {
+          setError('Brak uprawnień do edycji tej rezerwacji.');
+          setReservation(null);
+        } else {
+          setReservation(res);
+        }
+      })
       .catch(loadError => setError(loadError instanceof Error ? loadError.message : 'Nie udało się załadować rezerwacji.'))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, currentUser]);
 
   if (loading) {
     return <div className="flex justify-center py-20"><Loader2 className="h-7 w-7 animate-spin text-blue-600" /></div>;
@@ -47,6 +70,7 @@ export default function EditReservationPage() {
       {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
       <ReservationForm
+        currentUser={currentUser}
         initialValues={{
           userId: reservation.user_id,
           carId: reservation.car_id,

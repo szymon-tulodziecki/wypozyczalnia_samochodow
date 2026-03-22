@@ -113,6 +113,14 @@ export default function CreateUserPage() {
               </select>
             </div>
           )}
+          {currentUser?.role === 'agent' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Rola</label>
+              <select value={form.role} onChange={e => set('role', 'klient')} className={inp} disabled>
+                <option value="klient">Klient</option>
+              </select>
+            </div>
+          )}
         </Card>
 
         <Card title="Hasło">

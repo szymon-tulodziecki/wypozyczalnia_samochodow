@@ -340,7 +340,7 @@ function ReservationsTab({ userId }: { userId: string }) {
                   </span>
                   <div className="res-price">{res.total_price.toLocaleString('pl-PL')} zł</div>
                   <div className="res-actions">
-                    <Link href={`/account/rezerwacja/${res.id}`} className="btn-outline-sm">Szczegóły</Link>
+                    <Link href={`/account/reservation/${res.id}`} className="btn-outline-sm">Szczegóły</Link>
                     {res.status === 'aktywna' && (
                       <button className="btn-danger-sm" onClick={() => setCancelTarget(res)}>Anuluj</button>
                     )}

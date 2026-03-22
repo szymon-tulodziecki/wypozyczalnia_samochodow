@@ -15,7 +15,7 @@ const authNavLinks = [
   { href: '/', label: 'Strona Główna' },
   { href: '/cars', label: 'Nasza Flota' },
   { href: '/contact', label: 'Kontakt' },
-  { href: '/konto', label: 'Moje Konto' },
+  { href: '/account', label: 'Moje Konto' },
 ];
 
 const adminNavLinks = [

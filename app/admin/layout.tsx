@@ -119,7 +119,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         try {
           const profile = await authAPI.getProfile();
           if (profile.role !== 'root' && profile.role !== 'agent') {
-            router.replace('/konto');
+            router.replace('/account');
             return;
           }
           if (mounted) setUser(profile);

@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/useAuth';
 import { authAPI, reservationsAPI } from '@/lib/api';
 import type { Reservation } from '@/types';
-import './../konto.css';
+import '../../konto.css';
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });

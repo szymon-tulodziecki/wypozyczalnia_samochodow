@@ -447,7 +447,7 @@ export default function CarDetailPage() {
               </div>
 
               {car.status === 'dostepny' ? (
-                <button className="dp-cta" onClick={() => router.push(`/cars/${id}/zarezerwuj`)}>
+                <button className="dp-cta" onClick={() => router.push(`/cars/${id}/rent`)}>
                   <Phone size={14} /><span>Zarezerwuj teraz</span>
                 </button>
               ) : (

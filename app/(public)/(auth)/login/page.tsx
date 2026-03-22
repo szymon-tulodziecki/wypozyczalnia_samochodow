@@ -59,7 +59,7 @@ export default function LoginPage() {
       if (isAdminFlow) {
         router.push('/admin/dashboard');
       } else {
-        router.push('/konto');
+        router.push('/account');
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Błąd logowania');

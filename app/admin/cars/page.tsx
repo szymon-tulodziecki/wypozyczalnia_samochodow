@@ -33,7 +33,7 @@ export default function CarsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [previewImage, setPreviewImage] = useState<{ src: string; alt: string } | null>(null);
-  const [, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => { authAPI.getProfile().then(setUser).catch(() => {}); }, []);
 
@@ -254,6 +254,7 @@ export default function CarsPage() {
                   <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Cena/dobę</th>
                   <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
                   <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden sm:table-cell">Rejestracja</th>
+                  <th className="text-left px-5 py-3.5 text-xs font-semibold text-gray-500 uppercase tracking-wide hidden lg:table-cell">Agent</th>
                   <th className="px-5 py-3.5" />
                 </tr>
               </thead>
@@ -293,34 +294,41 @@ export default function CarsPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3.5 text-gray-500 hidden sm:table-cell">{car.license_plate || '–'}</td>
+                    <td className="px-5 py-3.5 text-gray-600 hidden lg:table-cell">
+                      {car.agent ? `${car.agent.first_name} ${car.agent.last_name}` : '–'}
+                    </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-1">
                         <button onClick={() => router.push(`/admin/cars/${car.id}`)}
                           className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Podgląd">
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button onClick={() => router.push(`/admin/cars/${car.id}/edit`)}
-                          className="p-1.5 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edytuj">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        {confirmId === car.id ? (
-                          <div className="flex items-center gap-1">
-                            <button onClick={() => handleDelete(car.id)}
-                              className="px-2 py-1 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                              Tak
+                        {user?.role === 'root' && (
+                          <>
+                            <button onClick={() => router.push(`/admin/cars/${car.id}/edit`)}
+                              className="p-1.5 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Edytuj">
+                              <Edit className="w-4 h-4" />
                             </button>
-                            <button onClick={() => setConfirmId(null)}
-                              className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                              Nie
-                            </button>
-                          </div>
-                        ) : (
-                          <button onClick={() => setConfirmId(car.id)} disabled={deletingId === car.id}
-                            className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40" title="Usuń">
-                            {deletingId === car.id
-                              ? <div className="w-4 h-4 rounded-full border-2 border-red-400 border-t-transparent animate-spin" />
-                              : <Trash2 className="w-4 h-4" />}
-                          </button>
+                            {confirmId === car.id ? (
+                              <div className="flex items-center gap-1">
+                                <button onClick={() => handleDelete(car.id)}
+                                  className="px-2 py-1 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                  Tak
+                                </button>
+                                <button onClick={() => setConfirmId(null)}
+                                  className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                                  Nie
+                                </button>
+                              </div>
+                            ) : (
+                              <button onClick={() => setConfirmId(car.id)} disabled={deletingId === car.id}
+                                className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40" title="Usuń">
+                                {deletingId === car.id
+                                  ? <div className="w-4 h-4 rounded-full border-2 border-red-400 border-t-transparent animate-spin" />
+                                  : <Trash2 className="w-4 h-4" />}
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </td>

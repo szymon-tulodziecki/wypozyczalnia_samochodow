@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { authAPI } from '@/lib/api';
 import type { User } from '@/types';
-import { Home, Car, Users, LogOut, Menu, X, Crown, LucideIcon } from 'lucide-react';
+import { Home, Car, Users, LogOut, Menu, X, Crown, LucideIcon, Calendar } from 'lucide-react';
 
 interface NavItem {
   name: string;
@@ -28,12 +28,18 @@ const Sidebar = ({
   handleLogout: () => void;
 }) => {
   const isAdmin = user.role === 'root';
+  const canViewReservations = user.role === 'root' || user.role === 'agent';
   
   const nav: NavItem[] = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
     { name: 'Samochody', href: '/admin/cars', icon: Car },
-    ...(isAdmin ? [{ name: 'Użytkownicy', href: '/admin/users', icon: Users }] : []),
+    ...(canViewReservations ? [{ name: 'Rezerwacje', href: '/admin/reservations', icon: Calendar }] : []),
   ];
+
+  // Only add Users menu for root admins
+  if (isAdmin) {
+    nav.push({ name: 'Użytkownicy', href: '/admin/users', icon: Users });
+  }
 
   return (
     <div className="flex flex-col h-full bg-gray-900 w-64">

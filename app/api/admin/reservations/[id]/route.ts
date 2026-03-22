@@ -12,6 +12,15 @@ function getUserIdFromJwt(token: string): string | null {
   }
 }
 
+async function getUser(request: NextRequest) {
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  if (!token) return null;
+  const userId = getUserIdFromJwt(token);
+  if (!userId) return null;
+  const { data } = await supabaseAdmin.from('profiles').select('id, role').eq('id', userId).single();
+  return data as { id: string; role?: string } | null;
+}
+
 async function requireRoot(request: NextRequest) {
   const token = request.headers.get('Authorization')?.replace('Bearer ', '');
   if (!token) return false;
@@ -32,20 +41,25 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const isRoot = await requireRoot(request);
-  if (!isRoot) {
+  const user = await getUser(request);
+  if (!user || (user.role !== 'root' && user.role !== 'agent')) {
     return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
   }
 
   const { id } = await params;
   const { data, error } = await supabaseAdmin
     .from('reservations')
-    .select('*, car:car_id(id, brand, model, year, price_per_day), profile:user_id(id, first_name, last_name, email)')
+    .select('*, car:car_id(id, brand, model, year, price_per_day, agent_id), profile:user_id(id, first_name, last_name, email)')
     .eq('id', id)
     .single();
 
   if (error || !data) {
     return NextResponse.json({ error: 'Nie znaleziono rezerwacji.' }, { status: 404 });
+  }
+
+  // Agents can only access reservations for their cars
+  if (user.role === 'agent' && (data as { car?: { agent_id?: string } }).car?.agent_id !== user.id) {
+    return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
   }
 
   return NextResponse.json({ reservation: data });
@@ -55,12 +69,26 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const isRoot = await requireRoot(request);
-  if (!isRoot) {
+  const user = await getUser(request);
+  if (!user || (user.role !== 'root' && user.role !== 'agent')) {
     return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
   }
 
   const { id } = await params;
+
+  // Check if agent owns the car for this reservation
+  if (user.role === 'agent') {
+    const { data: reservation } = await supabaseAdmin
+      .from('reservations')
+      .select('car_id, car:car_id(agent_id)')
+      .eq('id', id)
+      .single();
+
+    if (!reservation || (reservation as { car?: { agent_id?: string } }).car?.agent_id !== user.id) {
+      return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
+    }
+  }
+
   const body = await request.json() as {
     userId?: string;
     carId?: string;
@@ -93,6 +121,19 @@ export async function PATCH(
 
   if (endDate < startDate) {
     return NextResponse.json({ error: 'Data zwrotu nie może być wcześniejsza niż data odbioru.' }, { status: 400 });
+  }
+
+  // Agents can only edit reservations for their cars
+  if (user.role === 'agent') {
+    const { data: carData } = await supabaseAdmin
+      .from('cars')
+      .select('agent_id')
+      .eq('id', carId)
+      .single();
+
+    if (!carData || (carData as { agent_id?: string }).agent_id !== user.id) {
+      return NextResponse.json({ error: 'Brak uprawnień do edycji rezerwacji dla tego samochodu.' }, { status: 403 });
+    }
   }
 
   const [{ data: profile, error: profileError }, { data: car, error: carError }] = await Promise.all([
@@ -159,8 +200,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const isRoot = await requireRoot(request);
-  if (!isRoot) {
+  const user = await getUser(request);
+  if (!user || user.role !== 'root') {
     return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
   }
 

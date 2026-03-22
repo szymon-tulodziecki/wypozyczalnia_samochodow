@@ -155,14 +155,23 @@ export default function ReserveCarPage() {
   useEffect(() => {
     if (!isAuthenticated) return;
     Promise.all([carsAPI.getById(id), authAPI.getProfile(), reservationsAPI.getBlockedDatesForCar(id)])
-      .then(([carData, profileData, ranges]) => { setCar(carData); setProfile(profileData); setBlockedRanges(ranges); })
+      .then(([carData, profileData, ranges]) => { 
+        setCar(carData); 
+        setProfile(profileData); 
+        setBlockedRanges(ranges); 
+      })
       .catch(() => setError('Nie udało się załadować danych rezerwacji.'))
       .finally(() => setPageLoading(false));
   }, [id, isAuthenticated]);
 
   const blockedDates = useMemo(() => {
     const s = new Set<string>();
-    blockedRanges.forEach(r => buildDateRange(r.startDate, r.endDate).forEach(d => s.add(d)));
+    blockedRanges.forEach(r => {
+      // Wyciągnij część datową z ISO formatu (2026-03-26T00:00:00+00:00 -> 2026-03-26)
+      const startKey = r.startDate.split('T')[0];
+      const endKey = r.endDate.split('T')[0];
+      buildDateRange(startKey, endKey).forEach(d => s.add(d));
+    });
     return s;
   }, [blockedRanges]);
 
@@ -207,6 +216,7 @@ export default function ReserveCarPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.startDate || !form.endDate) { setError('Wybierz datę odbioru i datę zwrotu.'); return; }
+    if (form.pickupTime < '10:00') { setError('Rezerwacja możliwa od godziny 10:00.'); return; }
     if (hasBlockedBetween(form.startDate, form.endDate, blockedDates)) { setError('Ten zakres nachodzi na istniejącą rezerwację.'); return; }
     setSaving(true); setSuccess(''); setError('');
     try {
@@ -217,7 +227,7 @@ export default function ReserveCarPage() {
       });
       setBlockedRanges(await reservationsAPI.getBlockedDatesForCar(id));
       setSuccess('Rezerwacja została zapisana. Znajdziesz ją na swoim koncie.');
-      window.setTimeout(() => router.push('/konto'), 1400);
+      window.setTimeout(() => router.push('/account'), 1400);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Nie udało się utworzyć rezerwacji.');
     } finally {
@@ -311,7 +321,7 @@ export default function ReserveCarPage() {
                 <div className="rv-form-grid">
                   <div className="rv-field">
                     <label className="rv-label">Godzina odbioru</label>
-                    <input className="rv-select" type="time" value={form.pickupTime} onChange={e => setField('pickupTime', e.target.value)} required />
+                    <input className="rv-select" type="time" value={form.pickupTime} onChange={e => setField('pickupTime', e.target.value)} min="10:00" required />
                   </div>
                   <div className="rv-field">
                     <p className="rv-field-hint">Zwrot do 19:00 ostatniego dnia.</p>

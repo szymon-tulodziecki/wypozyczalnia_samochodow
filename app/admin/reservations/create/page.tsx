@@ -1,16 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
-import { reservationsAPI } from '@/lib/api';
+import { reservationsAPI, authAPI } from '@/lib/api';
 import { ReservationForm } from '../ReservationForm';
-import type { Reservation } from '@/types';
+import type { Reservation, User } from '@/types';
 
 export default function CreateReservationPage() {
   const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    authAPI.getProfile()
+      .then(user => {
+        if (user.role !== 'root' && user.role !== 'agent') {
+          router.replace('/admin');
+          return;
+        }
+        setCurrentUser(user);
+      })
+      .catch(() => {
+        router.replace('/admin/login');
+      });
+  }, [router]);
 
   return (
     <div className="mx-auto max-w-4xl space-y-5">
@@ -27,6 +42,7 @@ export default function CreateReservationPage() {
       {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
 
       <ReservationForm
+        currentUser={currentUser}
         initialValues={{
           userId: '',
           carId: '',

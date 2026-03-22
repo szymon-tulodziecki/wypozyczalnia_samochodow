@@ -12,6 +12,15 @@ function getUserIdFromJwt(token: string): string | null {
   }
 }
 
+async function getUser(request: NextRequest) {
+  const token = request.headers.get('Authorization')?.replace('Bearer ', '');
+  if (!token) return null;
+  const userId = getUserIdFromJwt(token);
+  if (!userId) return null;
+  const { data } = await supabaseAdmin.from('profiles').select('id, role').eq('id', userId).single();
+  return data as { id: string; role?: string } | null;
+}
+
 async function requireRoot(request: NextRequest) {
   const token = request.headers.get('Authorization')?.replace('Bearer ', '');
   if (!token) return null;
@@ -95,14 +104,44 @@ async function ensureReservationPayload(body: {
 }
 
 export async function GET(request: NextRequest) {
-  const rootUserId = await requireRoot(request);
-  if (!rootUserId) {
+  const user = await getUser(request);
+  if (!user || (user.role !== 'root' && user.role !== 'agent')) {
     return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
+  }
+
+  if (user.role === 'root') {
+    const { data, error } = await supabaseAdmin
+      .from('reservations')
+      .select('*, car:car_id(id, brand, model, year, price_per_day, agent_id), profile:user_id(id, first_name, last_name, email)')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ reservations: data ?? [] });
+  }
+
+  // For agents, get only their cars and reservations for those cars
+  const { data: agentCars, error: carsError } = await supabaseAdmin
+    .from('cars')
+    .select('id')
+    .eq('agent_id', user.id);
+
+  if (carsError) {
+    return NextResponse.json({ error: carsError.message }, { status: 400 });
+  }
+
+  const carIds = (agentCars ?? []).map(car => (car as { id: string }).id);
+
+  if (carIds.length === 0) {
+    return NextResponse.json({ reservations: [] });
   }
 
   const { data, error } = await supabaseAdmin
     .from('reservations')
-    .select('*, car:car_id(id, brand, model, year, price_per_day), profile:user_id(id, first_name, last_name, email)')
+    .select('*, car:car_id(id, brand, model, year, price_per_day, agent_id), profile:user_id(id, first_name, last_name, email)')
+    .in('car_id', carIds)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -113,8 +152,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const rootUserId = await requireRoot(request);
-  if (!rootUserId) {
+  const user = await getUser(request);
+  if (!user || (user.role !== 'root' && user.role !== 'agent')) {
     return NextResponse.json({ error: 'Brak uprawnień' }, { status: 403 });
   }
 
@@ -129,6 +168,23 @@ export async function POST(request: NextRequest) {
     notes?: string;
     status?: string;
   };
+
+  // For agents, verify the car belongs to them
+  if (user.role === 'agent') {
+    const { data: car, error: carError } = await supabaseAdmin
+      .from('cars')
+      .select('agent_id')
+      .eq('id', body.carId)
+      .single();
+
+    if (carError || !car) {
+      return NextResponse.json({ error: 'Wybrane auto nie istnieje.' }, { status: 400 });
+    }
+
+    if ((car as { agent_id?: string }).agent_id !== user.id) {
+      return NextResponse.json({ error: 'Brak uprawnień do tworzenia rezerwacji dla tego samochodu.' }, { status: 403 });
+    }
+  }
 
   const validated = await ensureReservationPayload(body);
   if ('error' in validated) {

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { usersAPI, authAPI } from '@/lib/api';
 import type { User } from '@/types';
@@ -22,13 +23,21 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     Promise.all([authAPI.getProfile(), usersAPI.getAll()])
-      .then(([me, all]) => { setCurrentUser(me); setUsers(all); })
+      .then(([me, all]) => { 
+        if (me.role !== 'root') {
+          router.replace('/admin/dashboard');
+          return;
+        }
+        setCurrentUser(me); 
+        setUsers(all); 
+      })
       .catch(() => setError('Błąd ładowania użytkowników'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [router]);
 
   const isAdmin = currentUser?.role === 'root';
 

@@ -173,10 +173,10 @@
 }
 .rv-day--off { opacity: .2; pointer-events: none; }
 .rv-day--blocked {
-  color: #3a4e5a; cursor: not-allowed;
-  text-decoration: line-through;
-  text-decoration-thickness: 1px;
-  text-decoration-color: rgba(224,82,82,.55);
+  color: #5a6e7a; cursor: not-allowed;
+  background: rgba(90, 110, 122, 0.25) !important;
+  border-color: rgba(90, 110, 122, 0.4) !important;
+  opacity: 0.6;
 }
 .rv-day--selected {
   background: rgba(79,163,212,.22);
